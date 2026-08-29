@@ -182,166 +182,203 @@ projectCards.forEach((card) => {
 });
 
 // ======================================================
-// SMOOTH SECTION FADE IN / FADE OUT
+// SMOOTH NAVIGATION + SLOW FADE IN / FADE OUT
 // ======================================================
 
-// 페이드용 오버레이 자동 생성
-const pageFadeOverlay = document.createElement("div");
+const transitionLinks =
+  document.querySelectorAll(
+    '.site-nav a[href^="#"], .brand[href^="#"], .hero-buttons a[href^="#"]'
+  );
 
-pageFadeOverlay.className = "page-fade-overlay";
-
-document.body.appendChild(pageFadeOverlay);
-
-
-// 페이지 안의 #링크들에 페이드 전환 적용
-document
-  .querySelectorAll('a[href^="#"]')
-  .forEach((link) => {
-
-    link.addEventListener("click", (event) => {
-
-      const targetId =
-        link.getAttribute("href");
+let sectionTransitionRunning = false;
 
 
-      // #만 있는 링크는 제외
-      if (
-        !targetId ||
-        targetId === "#"
-      ) {
-        return;
+transitionLinks.forEach((link) => {
+
+  link.addEventListener("click", (event) => {
+
+    const targetId = link.getAttribute("href");
+
+    if (
+      !targetId ||
+      targetId === "#" ||
+      sectionTransitionRunning
+    ) {
+      return;
+    }
+
+
+    const target =
+      document.querySelector(targetId);
+
+    if (!target) {
+      return;
+    }
+
+
+    event.preventDefault();
+
+    sectionTransitionRunning = true;
+
+
+    /* 모바일 메뉴 닫기 */
+    const navMenu =
+      document.getElementById("siteNav");
+
+    if (navMenu) {
+      navMenu.classList.remove("active");
+    }
+
+
+    /* --------------------------------------------
+       STEP 1
+       현재 화면 천천히 Fade Out
+    -------------------------------------------- */
+
+    document.body.classList.add(
+      "section-changing"
+    );
+
+
+    /*
+      Fade Out이 충분히 진행된 뒤 이동
+    */
+    setTimeout(() => {
+
+
+      const header =
+        document.querySelector(
+          ".site-header"
+        );
+
+      const headerHeight =
+        header
+          ? header.offsetHeight
+          : 0;
+
+
+      let destination = 0;
+
+
+      /* HOME */
+      if (targetId === "#home") {
+
+        destination = 0;
+
       }
 
+      else {
 
-      const target =
-        document.querySelector(targetId);
-
-
-      if (!target) {
-        return;
-      }
+        const targetRect =
+          target.getBoundingClientRect();
 
 
-      event.preventDefault();
+        const targetTop =
+          window.scrollY +
+          targetRect.top;
 
 
-      // 모바일 메뉴가 열려 있으면 닫기
-      if (
-        typeof siteNav !== "undefined" &&
-        siteNav
-      ) {
-        siteNav.classList.remove("active");
-      }
+        const targetHeight =
+          target.offsetHeight;
 
 
-      // 1단계
-      // 현재 화면 천천히 Fade Out
-      pageFadeOverlay.classList.add("active");
+        const viewportHeight =
+          window.innerHeight;
 
 
-      setTimeout(() => {
-
-        const header =
-          document.querySelector(".site-header");
-
-        const headerHeight =
-          header
-            ? header.offsetHeight
-            : 0;
+        const usableHeight =
+          viewportHeight -
+          headerHeight;
 
 
         /*
-          HOME은 위로,
-          나머지는 화면 중앙에 최대한 맞춤
+          내용이 한 화면보다 작으면
+          해당 섹션을 화면 가운데 배치
         */
+        if (
+          targetHeight <
+          usableHeight
+        ) {
 
-        if (targetId === "#home") {
-
-          window.scrollTo({
-            top: 0,
-            behavior: "auto"
-          });
-
-        } else {
-
-          const targetRect =
-            target.getBoundingClientRect();
-
-          const absoluteTop =
-            window.scrollY +
-            targetRect.top;
-
-          const viewportHeight =
-            window.innerHeight;
-
-          const targetHeight =
-            target.offsetHeight;
-
-
-          let scrollPosition;
-
-
-          /*
-            섹션이 화면보다 작다면
-            정확히 화면 중앙 배치
-          */
-          if (
-            targetHeight <
-            viewportHeight - headerHeight
-          ) {
-
-            scrollPosition =
-              absoluteTop
-              -
-              (
-                viewportHeight
-                - targetHeight
-              ) / 2
-              -
-              headerHeight / 2;
-
-          }
-
-          /*
-            섹션이 긴 경우
-            제목이 헤더 아래에서 시작
-          */
-          else {
-
-            scrollPosition =
-              absoluteTop
-              - headerHeight
-              - 20;
-
-          }
-
-
-          window.scrollTo({
-            top: Math.max(
-              0,
-              scrollPosition
-            ),
-            behavior: "auto"
-          });
+          destination =
+            targetTop
+            -
+            headerHeight
+            -
+            (
+              usableHeight -
+              targetHeight
+            ) / 2;
 
         }
 
+        /*
+          긴 섹션은 제목부터 정상적으로 보이게
+        */
+        else {
+
+          destination =
+            targetTop
+            -
+            headerHeight
+            -
+            30;
+
+        }
+
+      }
+
+
+      /* --------------------------------------------
+         STEP 2
+         부드럽게 실제 스크롤 이동
+      -------------------------------------------- */
+
+      window.scrollTo({
+
+        top: Math.max(
+          destination,
+          0
+        ),
+
+        behavior: "smooth"
+
+      });
+
+
+      /*
+        스크롤이 움직이는 동안
+        화면은 희미한 상태 유지
+      */
+      setTimeout(() => {
+
+
+        /* --------------------------------------------
+           STEP 3
+           새 섹션 천천히 Fade In
+        -------------------------------------------- */
+
+        document.body.classList.remove(
+          "section-changing"
+        );
+
 
         /*
-          아주 짧게 기다렸다가
-          새 섹션 Fade In
+          Fade In이 완료된 이후
+          다음 메뉴 입력 허용
         */
         setTimeout(() => {
 
-          pageFadeOverlay
-            .classList
-            .remove("active");
+          sectionTransitionRunning = false;
 
-        }, 180);
+        }, 1050);
 
 
-      }, 1400);
+      }, 750);
 
-    });
+
+    }, 850);
 
   });
+
+});
