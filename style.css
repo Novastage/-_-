@@ -974,7 +974,63 @@ p {
     rgba(225,236,250,0.82);
 }
 
+/* =========================================================
+   PROJECTS
+========================================================= */
 
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 26px;
+}
+
+.project-card {
+  min-height: unset;
+  aspect-ratio: 16 / 10;
+
+  border-radius: 28px;
+  overflow: hidden;
+  position: relative;
+
+  border: 1px solid rgba(138, 193, 255, 0.18);
+  box-shadow: var(--shadow);
+
+  background-color: #071223;
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-6px) scale(1.01);
+
+  box-shadow:
+    0 32px 70px rgba(0, 0, 0, 0.48);
+}
+
+.project-overlay {
+  position: absolute;
+  inset: auto 0 0 0;
+
+  padding: 34px;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent,
+      rgba(3, 8, 17, 0.95)
+    );
+}
+
+.project-overlay h3 {
+  margin-bottom: 10px;
+  font-size: 26px;
+}
+
+.project-overlay p {
+  margin-bottom: 0;
+}
 
 /* =========================================================
    FEATURED PROJECTS IMAGES
