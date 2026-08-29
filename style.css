@@ -1360,3 +1360,338 @@ p {
   }
 
 }
+/* =========================================================
+   MOBILE OPTIMIZATION
+========================================================= */
+
+@media (max-width: 768px) {
+
+  html,
+  body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  .container {
+    width: calc(100% - 32px);
+    max-width: 100%;
+    margin: 0 auto;
+  }
+
+  /* HEADER */
+  .site-header {
+    background: rgba(3, 10, 22, 0.88);
+    backdrop-filter: blur(18px);
+  }
+
+  .header-inner {
+    min-height: 76px;
+    padding: 0;
+  }
+
+  .brand-logo {
+    width: 170px;
+    max-width: 60vw;
+  }
+
+  .menu-toggle {
+    display: block;
+    position: relative;
+    z-index: 50;
+  }
+
+  .site-nav {
+    position: absolute;
+
+    top: 76px;
+    left: 16px;
+    right: 16px;
+
+    display: none;
+
+    flex-direction: column;
+    align-items: stretch;
+
+    gap: 0;
+
+    padding: 14px 20px;
+
+    background: rgba(4, 12, 25, 0.97);
+
+    border:
+      1px solid rgba(125, 200, 255, 0.16);
+
+    border-radius: 18px;
+
+    box-shadow:
+      0 25px 60px rgba(0, 0, 0, 0.45);
+  }
+
+  .site-nav.active {
+    display: flex;
+  }
+
+  .site-nav a {
+    width: 100%;
+
+    padding: 14px 4px;
+
+    font-size: 14px;
+
+    border-bottom:
+      1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .site-nav a:last-child {
+    border-bottom: none;
+  }
+
+  /* HERO */
+  .hero {
+    min-height: auto;
+
+    padding:
+      120px 0 75px;
+
+    scroll-margin-top: 76px;
+  }
+
+  .hero-grid {
+    display: grid;
+
+    grid-template-columns: 1fr;
+
+    gap: 45px;
+  }
+
+  .hero-copy {
+    max-width: 100%;
+  }
+
+  .hero-copy h1 {
+    font-size: clamp(42px, 12vw, 62px);
+
+    line-height: 1.02;
+
+    letter-spacing: -0.04em;
+
+    margin-bottom: 24px;
+  }
+
+  .hero-text {
+    font-size: 15px;
+
+    line-height: 1.75;
+
+    margin-bottom: 30px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+
+    letter-spacing: 0.18em;
+  }
+
+  .hero-buttons {
+    display: grid;
+
+    grid-template-columns: 1fr;
+
+    gap: 12px;
+  }
+
+  .btn {
+    width: 100%;
+
+    min-width: 0;
+
+    padding: 15px 20px;
+
+    font-size: 13px;
+  }
+
+  .hero-visual {
+    width: 100%;
+
+    justify-content: center;
+  }
+
+  .hero-glow-card {
+    width: 100%;
+
+    min-height: 320px;
+
+    padding:
+      35px 24px;
+
+    border-radius: 24px;
+  }
+
+  .hero-glow-card img {
+    max-width: 250px;
+
+    margin-bottom: 24px;
+  }
+
+  .hero-glow-card p {
+    font-size: 14px;
+  }
+
+  /* SECTION */
+  .section {
+    min-height: auto;
+
+    padding:
+      85px 0;
+
+    display: block;
+
+    scroll-margin-top: 76px;
+  }
+
+  .section > .container {
+    width: calc(100% - 32px);
+  }
+
+  .section-head {
+    margin-bottom: 28px;
+  }
+
+  h2 {
+    font-size: clamp(30px, 9vw, 42px);
+
+    line-height: 1.08;
+  }
+
+  /* ABOUT */
+  .about-grid {
+    grid-template-columns: 1fr;
+
+    gap: 18px;
+  }
+
+  .about-side {
+    gap: 18px;
+  }
+
+  .about-main p {
+    font-size: 15px;
+
+    line-height: 1.8;
+  }
+
+  /* CARD */
+  .card {
+    width: 100%;
+
+    padding: 24px;
+
+    border-radius: 20px;
+  }
+
+  .card h3 {
+    font-size: 18px;
+  }
+
+  .card p {
+    font-size: 14px;
+  }
+
+  /* BUSINESS */
+  .business-grid {
+    grid-template-columns: 1fr;
+
+    gap: 16px;
+  }
+
+  .business-card {
+    min-height: auto;
+  }
+
+  /* PROJECTS */
+  .project-grid {
+    grid-template-columns: 1fr;
+
+    gap: 18px;
+  }
+
+  .project-card {
+    min-height: 320px;
+
+    border-radius: 22px;
+  }
+
+  .project-overlay {
+    padding: 24px;
+  }
+
+  .project-overlay h3 {
+    font-size: 21px;
+  }
+
+  /* CONTACT */
+  .contact-grid {
+    grid-template-columns: 1fr;
+
+    gap: 18px;
+  }
+
+  .contact-list li {
+    font-size: 14px;
+
+    word-break: break-word;
+  }
+
+  /* FOOTER */
+  .footer-inner {
+    flex-direction: column;
+
+    align-items: flex-start;
+
+    gap: 22px;
+  }
+
+  .footer-brand img {
+    width: 190px;
+  }
+
+  .footer-text p {
+    text-align: left;
+
+    font-size: 12px;
+
+    line-height: 1.6;
+  }
+
+}
+
+
+/* 작은 휴대폰 */
+@media (max-width: 430px) {
+
+  .container {
+    width: calc(100% - 24px);
+  }
+
+  .hero-copy h1 {
+    font-size: 40px;
+  }
+
+  .brand-logo {
+    width: 150px;
+  }
+
+  .hero-glow-card {
+    min-height: 290px;
+  }
+
+  .section {
+    padding:
+      70px 0;
+  }
+
+  .card {
+    padding: 20px;
+  }
+
+}
