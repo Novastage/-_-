@@ -147,3 +147,36 @@ fadeSections.forEach((section) => {
 
 // 첫 화면은 바로 표시
 document.querySelector(".hero")?.classList.add("show");
+
+// ======================================================
+// FEATURED PROJECTS - SCROLL REVEAL
+// ======================================================
+
+const projectCards =
+  document.querySelectorAll(".project-card");
+
+const projectObserver =
+  new IntersectionObserver(
+    (entries, observer) => {
+
+      entries.forEach((entry) => {
+
+        if (entry.isIntersecting) {
+
+          entry.target.classList.add("show");
+
+          observer.unobserve(entry.target);
+
+        }
+
+      });
+
+    },
+    {
+      threshold: 0.18
+    }
+  );
+
+projectCards.forEach((card) => {
+  projectObserver.observe(card);
+});
