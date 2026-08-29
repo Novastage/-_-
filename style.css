@@ -1352,3 +1352,45 @@ p {
   }
 
 }
+
+
+/* =========================================================
+   SMOOTH SECTION FADE TRANSITION
+========================================================= */
+
+.page-fade-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999;
+
+  pointer-events: none;
+
+  opacity: 0;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(10, 28, 55, 0.72),
+      rgba(2, 7, 16, 0.96)
+    );
+
+  backdrop-filter: blur(4px);
+
+  transition:
+    opacity 1.4s ease;
+}
+
+
+/* 화면을 천천히 어둡게 */
+.page-fade-overlay.active {
+  opacity: 1;
+}
+
+
+/* 접근성 */
+@media (prefers-reduced-motion: reduce) {
+  .page-fade-overlay {
+    transition: none;
+  }
+}
