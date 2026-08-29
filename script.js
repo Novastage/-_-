@@ -9,11 +9,89 @@ menuToggle.addEventListener("click", () => {
   siteNav.classList.toggle("active");
 });
 
-// 메뉴 클릭 시 모바일 메뉴 닫기
+// ======================================================
+// 메뉴 클릭 시 해당 섹션을 화면 중앙으로 이동
+// ======================================================
+
 document.querySelectorAll(".site-nav a").forEach((link) => {
-  link.addEventListener("click", () => {
+
+  link.addEventListener("click", (event) => {
+
+    const targetId = link.getAttribute("href");
+
+    if (!targetId || !targetId.startsWith("#")) {
+      return;
+    }
+
+    event.preventDefault();
+
+    const target = document.querySelector(targetId);
+
+    if (!target) {
+      return;
+    }
+
+    // 모바일 메뉴 닫기
     siteNav.classList.remove("active");
+
+
+    const header =
+      document.querySelector(".site-header");
+
+    const headerHeight =
+      header ? header.offsetHeight : 0;
+
+
+    const viewportHeight =
+      window.innerHeight;
+
+    const targetHeight =
+      target.offsetHeight;
+
+
+    let targetPosition;
+
+
+    /*
+      섹션 내용이 화면보다 작으면
+      화면 중앙에 배치
+    */
+    if (
+      targetHeight <
+      viewportHeight - headerHeight
+    ) {
+
+      targetPosition =
+        target.offsetTop
+        - ((viewportHeight - targetHeight) / 2)
+        - (headerHeight / 2);
+
+    }
+
+    /*
+      내용이 긴 섹션은
+      제목이 헤더 아래에서 시작
+    */
+    else {
+
+      targetPosition =
+        target.offsetTop
+        - headerHeight
+        - 20;
+
+    }
+
+
+    window.scrollTo({
+
+      top: targetPosition,
+
+      behavior: "smooth"
+
+    });
+
   });
+
 });
 
 // 반짝이는 별 생성
