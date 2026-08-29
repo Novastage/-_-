@@ -1033,16 +1033,65 @@ p {
 }
 
 /* =========================================================
+   FEATURED PROJECTS - LARGE CARDS
+========================================================= */
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+
+.project-card {
+  position: relative;
+
+  min-height: 520px;
+
+  border-radius: 30px;
+  overflow: hidden;
+
+  border: 1px solid rgba(138, 193, 255, 0.20);
+
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.42);
+
+  background-color: #071223;
+
+  transition:
+    transform 0.35s ease,
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+.project-card:hover {
+  transform: translateY(-8px);
+
+  border-color: rgba(120, 205, 255, 0.42);
+
+  box-shadow:
+    0 38px 85px rgba(0, 0, 0, 0.52),
+    0 0 30px rgba(80, 170, 255, 0.10);
+}
+
+
+/* 마지막 3번째 프로젝트를 한 줄 전체 폭으로 */
+.project-card:nth-child(3) {
+  grid-column: 1 / -1;
+
+  min-height: 600px;
+}
+
+
+/* =========================================================
    FEATURED PROJECTS IMAGES
 ========================================================= */
 
-/* GLOBAL CONCERT PROJECT */
 .project-one {
   background:
     linear-gradient(
       180deg,
-      rgba(3, 8, 17, 0.03) 0%,
-      rgba(3, 8, 17, 0.10) 45%,
+      rgba(3, 8, 17, 0.02) 0%,
+      rgba(3, 8, 17, 0.08) 48%,
       rgba(3, 8, 17, 0.88) 100%
     ),
     url("assets/global-concert-project.png")
@@ -1051,13 +1100,12 @@ p {
 }
 
 
-/* K-CULTURE EXHIBITION */
 .project-two {
   background:
     linear-gradient(
       180deg,
       rgba(3, 8, 17, 0.02) 0%,
-      rgba(3, 8, 17, 0.10) 45%,
+      rgba(3, 8, 17, 0.08) 48%,
       rgba(3, 8, 17, 0.88) 100%
     ),
     url("assets/k-culture-exhibition.png")
@@ -1066,13 +1114,12 @@ p {
 }
 
 
-/* GLOBAL ENTERTAINMENT IP */
 .project-three {
   background:
     linear-gradient(
       180deg,
       rgba(3, 8, 17, 0.02) 0%,
-      rgba(3, 8, 17, 0.10) 45%,
+      rgba(3, 8, 17, 0.08) 48%,
       rgba(3, 8, 17, 0.88) 100%
     ),
     url("assets/global-entertainment-ip.png")
@@ -1080,6 +1127,46 @@ p {
     no-repeat;
 }
 
+
+/* 텍스트 영역 */
+.project-overlay {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 42px;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(2, 7, 16, 0.92) 100%
+    );
+}
+
+
+.project-overlay h3 {
+  margin-bottom: 12px;
+
+  font-size: clamp(28px, 2vw, 38px);
+
+  line-height: 1.1;
+}
+
+
+.project-overlay p {
+  max-width: 650px;
+
+  margin-bottom: 0;
+
+  font-size: 15px;
+
+  line-height: 1.75;
+
+  color: rgba(230, 239, 250, 0.88);
+}
 
 
 /* =========================================================
@@ -1499,6 +1586,42 @@ p {
     font-size: 13px;
 
     line-height: 1.6;
+  }
+
+}
+
+@media (max-width: 1000px) {
+
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-card,
+  .project-card:nth-child(3) {
+    grid-column: auto;
+    min-height: 500px;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .project-card,
+  .project-card:nth-child(3) {
+    min-height: 380px;
+  }
+
+  .project-overlay {
+    padding: 26px 22px;
+  }
+
+  .project-overlay h3 {
+    font-size: 24px;
+  }
+
+  .project-overlay p {
+    font-size: 13px;
   }
 
 }
