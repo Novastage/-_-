@@ -1,38 +1,257 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NS ENTER</title>
-  <style>
-    body {
-      margin: 0;
-      background: #000;
-      color: #fff;
-      font-family: Arial, sans-serif;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      text-align: center;
-    }
-
-    h1 {
-      font-size: 64px;
-      margin-bottom: 20px;
-      letter-spacing: 6px;
-    }
-
-    p {
-      font-size: 20px;
-      color: #aaa;
-    }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NOVASTAGE ENTERTAINMENT</title>
+  <meta
+    name="description"
+    content="Novastage Entertainment is a global entertainment company shaping the future of artists, live events, and content IP."
+  />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div>
-    <h1>NS ENTER</h1>
-    <p>BEYOND ENTERTAINMENT. CREATE GLOBAL CULTURE.</p>
+  <!-- 우주 배경 -->
+  <div class="space-background">
+    <div class="nebula nebula-1"></div>
+    <div class="nebula nebula-2"></div>
+    <div class="nebula nebula-3"></div>
+    <div id="starfield"></div>
   </div>
+
+  <!-- 헤더 -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <a href="#home" class="brand">
+        <img src="assets/logo.png" alt="NOVASTAGE ENTERTAINMENT 로고" class="brand-logo" />
+      </a>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="메뉴 열기">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <nav class="site-nav" id="siteNav">
+        <a href="#home">HOME</a>
+        <a href="#about">ABOUT</a>
+        <a href="#business">BUSINESS</a>
+        <a href="#projects">PROJECTS</a>
+        <a href="#contact">CONTACT</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- 메인 -->
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy">
+          <!-- 메인 문구 수정 가능 -->
+          <p class="eyebrow">GLOBAL ENTERTAINMENT COMPANY</p>
+          <h1>
+            WE BUILD<br />
+            THE NEXT STARS<br />
+            OF THE UNIVERSE.
+          </h1>
+          <!-- 메인 소개 문구 수정 가능 -->
+          <p class="hero-text">
+            Novastage Entertainment is a creative entertainment company focused on
+            artist development, live experiences, content IP, and global cultural expansion.
+          </p>
+
+          <div class="hero-buttons">
+            <a href="#about" class="btn btn-primary">DISCOVER MORE</a>
+            <a href="#contact" class="btn btn-secondary">CONTACT US</a>
+          </div>
+        </div>
+
+        <div class="hero-visual">
+          <div class="hero-glow-card">
+            <img src="assets/logo.png" alt="NOVASTAGE ENTERTAINMENT 로고" />
+            <p>
+              A galaxy of stars begins with one brilliant nova.<br />
+              We discover talent, shape identity, and elevate artists to the global stage.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section class="section" id="about">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">ABOUT</p>
+          <h2>ABOUT NOVASTAGE</h2>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-main card">
+            <!-- 회사 소개 문구 수정 가능 -->
+            <p>
+              Novastage Entertainment is a next-generation entertainment company
+              driven by creativity, strategy, and global vision. We nurture emerging stars,
+              create compelling live experiences, and develop entertainment IP that connects
+              audiences across cultures and borders.
+            </p>
+          </div>
+
+          <div class="about-side">
+            <div class="card">
+              <h3>MISSION</h3>
+              <!-- 미션 수정 가능 -->
+              <p>
+                To discover and grow artists with long-term value, while building meaningful
+                entertainment experiences for audiences worldwide.
+              </p>
+            </div>
+
+            <div class="card">
+              <h3>VISION</h3>
+              <!-- 비전 수정 가능 -->
+              <p>
+                To become a global entertainment platform where creativity, talent, and culture
+                shine like stars across the universe.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Business -->
+    <section class="section" id="business">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">BUSINESS</p>
+          <h2>OUR BUSINESS</h2>
+        </div>
+
+        <div class="business-grid">
+          <article class="card business-card">
+            <div class="icon">✦</div>
+            <h3>ARTIST MANAGEMENT</h3>
+            <!-- 사업 내용 수정 가능 -->
+            <p>
+              Discovering, developing, and managing artists with long-term global potential.
+            </p>
+          </article>
+
+          <article class="card business-card">
+            <div class="icon">✦</div>
+            <h3>CONCERT & LIVE EVENT</h3>
+            <p>
+              Producing impactful live shows, showcases, tours, exhibitions, and fan experiences.
+            </p>
+          </article>
+
+          <article class="card business-card">
+            <div class="icon">✦</div>
+            <h3>CONTENT IP</h3>
+            <p>
+              Developing original music, visual content, branded entertainment, and storytelling IP.
+            </p>
+          </article>
+
+          <article class="card business-card">
+            <div class="icon">✦</div>
+            <h3>GLOBAL EXPANSION</h3>
+            <p>
+              Connecting artists and content to international markets through strategic partnerships.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects -->
+    <section class="section" id="projects">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">PROJECTS</p>
+          <h2>FEATURED PROJECTS</h2>
+        </div>
+
+        <div class="project-grid">
+          <article class="project-card project-one">
+            <div class="project-overlay">
+              <!-- 프로젝트명 수정 가능 -->
+              <h3>GLOBAL LIVE PROJECT</h3>
+              <p>Concerts, fan events, and international live entertainment experiences.</p>
+            </div>
+          </article>
+
+          <article class="project-card project-two">
+            <div class="project-overlay">
+              <h3>ARTIST DEVELOPMENT LAB</h3>
+              <p>Training, branding, music planning, and strategic artist positioning.</p>
+            </div>
+          </article>
+
+          <article class="project-card project-three">
+            <div class="project-overlay">
+              <h3>CONTENT & IP STUDIO</h3>
+              <p>Original music, media concepts, documentary formats, and digital content production.</p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section class="section" id="contact">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">CONTACT</p>
+          <h2>LET’S CREATE THE NEXT STAR</h2>
+        </div>
+
+        <div class="contact-grid">
+          <div class="card">
+            <h3>CONTACT INFO</h3>
+            <!-- 연락처 수정 가능 -->
+            <ul class="contact-list">
+              <li><strong>Company:</strong> NOVASTAGE ENTERTAINMENT</li>
+              <li><strong>Email:</strong> contact@novastage.com</li>
+              <li><strong>Phone:</strong> +82 2 1234 5678</li>
+              <li><strong>Location:</strong> Seoul, Republic of Korea</li>
+            </ul>
+          </div>
+
+          <div class="card">
+            <h3>MESSAGE</h3>
+            <p>
+              For artist collaboration, business proposals, global partnerships, or content inquiries,
+              please contact us by email.
+            </p>
+            <a href="mailto:contact@novastage.com" class="btn btn-primary">SEND EMAIL</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- 푸터 -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="assets/logo.png" alt="NOVASTAGE ENTERTAINMENT 로고" />
+      </div>
+
+      <div class="footer-text">
+        <p>© <span id="currentYear"></span> NOVASTAGE ENTERTAINMENT. ALL RIGHTS RESERVED.</p>
+        <p>Designed for future stars, global culture, and the next wave of entertainment.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
