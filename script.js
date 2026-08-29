@@ -180,3 +180,168 @@ const projectObserver =
 projectCards.forEach((card) => {
   projectObserver.observe(card);
 });
+
+// ======================================================
+// SMOOTH SECTION FADE IN / FADE OUT
+// ======================================================
+
+// 페이드용 오버레이 자동 생성
+const pageFadeOverlay = document.createElement("div");
+
+pageFadeOverlay.className = "page-fade-overlay";
+
+document.body.appendChild(pageFadeOverlay);
+
+
+// 페이지 안의 #링크들에 페이드 전환 적용
+document
+  .querySelectorAll('a[href^="#"]')
+  .forEach((link) => {
+
+    link.addEventListener("click", (event) => {
+
+      const targetId =
+        link.getAttribute("href");
+
+
+      // #만 있는 링크는 제외
+      if (
+        !targetId ||
+        targetId === "#"
+      ) {
+        return;
+      }
+
+
+      const target =
+        document.querySelector(targetId);
+
+
+      if (!target) {
+        return;
+      }
+
+
+      event.preventDefault();
+
+
+      // 모바일 메뉴가 열려 있으면 닫기
+      if (
+        typeof siteNav !== "undefined" &&
+        siteNav
+      ) {
+        siteNav.classList.remove("active");
+      }
+
+
+      // 1단계
+      // 현재 화면 천천히 Fade Out
+      pageFadeOverlay.classList.add("active");
+
+
+      setTimeout(() => {
+
+        const header =
+          document.querySelector(".site-header");
+
+        const headerHeight =
+          header
+            ? header.offsetHeight
+            : 0;
+
+
+        /*
+          HOME은 위로,
+          나머지는 화면 중앙에 최대한 맞춤
+        */
+
+        if (targetId === "#home") {
+
+          window.scrollTo({
+            top: 0,
+            behavior: "auto"
+          });
+
+        } else {
+
+          const targetRect =
+            target.getBoundingClientRect();
+
+          const absoluteTop =
+            window.scrollY +
+            targetRect.top;
+
+          const viewportHeight =
+            window.innerHeight;
+
+          const targetHeight =
+            target.offsetHeight;
+
+
+          let scrollPosition;
+
+
+          /*
+            섹션이 화면보다 작다면
+            정확히 화면 중앙 배치
+          */
+          if (
+            targetHeight <
+            viewportHeight - headerHeight
+          ) {
+
+            scrollPosition =
+              absoluteTop
+              -
+              (
+                viewportHeight
+                - targetHeight
+              ) / 2
+              -
+              headerHeight / 2;
+
+          }
+
+          /*
+            섹션이 긴 경우
+            제목이 헤더 아래에서 시작
+          */
+          else {
+
+            scrollPosition =
+              absoluteTop
+              - headerHeight
+              - 20;
+
+          }
+
+
+          window.scrollTo({
+            top: Math.max(
+              0,
+              scrollPosition
+            ),
+            behavior: "auto"
+          });
+
+        }
+
+
+        /*
+          아주 짧게 기다렸다가
+          새 섹션 Fade In
+        */
+        setTimeout(() => {
+
+          pageFadeOverlay
+            .classList
+            .remove("active");
+
+        }, 180);
+
+
+      }, 1400);
+
+    });
+
+  });
