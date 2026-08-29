@@ -2015,3 +2015,93 @@ body.section-changing main {
   }
 
 }
+
+/* =========================================================
+   FINAL FOOTER FIX
+   반드시 style.css 맨 마지막에 넣기
+========================================================= */
+
+.site-footer {
+  position: relative;
+  z-index: 2;
+
+  min-height: auto !important;
+
+  padding: 80px 0 60px !important;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+  background: rgba(3, 9, 19, 0.54);
+
+  backdrop-filter: blur(12px);
+}
+
+.footer-inner {
+  display: flex !important;
+  flex-direction: column !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  gap: 22px !important;
+
+  width: 100% !important;
+
+  text-align: center !important;
+}
+
+.footer-brand {
+  width: 100% !important;
+
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.footer-brand img {
+  display: block !important;
+
+  width: 320px !important;
+  max-width: 70vw !important;
+  height: auto !important;
+
+  margin: 0 auto !important;
+
+  filter: drop-shadow(0 0 18px rgba(98, 187, 255, 0.18));
+}
+
+.footer-text {
+  width: 100% !important;
+  text-align: center !important;
+}
+
+.footer-text p {
+  margin: 0 0 10px !important;
+
+  text-align: center !important;
+
+  font-size: 13px !important;
+  line-height: 1.7 !important;
+}
+
+.footer-text a {
+  color: #dcecff;
+  text-decoration: none;
+}
+
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .site-footer {
+    padding: 60px 0 50px !important;
+  }
+
+  .footer-brand img {
+    width: 200px !important;
+    max-width: 65vw !important;
+  }
+
+  .footer-text p {
+    font-size: 12px !important;
+  }
+}
