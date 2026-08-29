@@ -41,3 +41,31 @@ for (let i = 0; i < starCount; i++) {
 
   starfield.appendChild(star);
 }
+// 스크롤 시 섹션 페이드 인
+const fadeSections = document.querySelectorAll(
+  ".section, .hero"
+);
+
+fadeSections.forEach((section) => {
+  section.classList.add("fade-section");
+});
+
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add("show");
+      }
+    });
+  },
+  {
+    threshold: 0.15,
+  }
+);
+
+fadeSections.forEach((section) => {
+  observer.observe(section);
+});
+
+// 첫 화면은 바로 표시
+document.querySelector(".hero")?.classList.add("show");
