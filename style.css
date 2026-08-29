@@ -2164,3 +2164,98 @@ body.section-changing main {
   }
 
 }
+
+
+/* =========================================================
+   IMPACT HERO IMAGE
+========================================================= */
+
+.impact-hero-image {
+  position: relative;
+
+  width: 100%;
+
+  aspect-ratio: 16 / 7;
+
+  margin-bottom: 34px;
+
+  overflow: hidden;
+
+  border-radius: 30px;
+
+  border: 1px solid rgba(130, 190, 255, 0.20);
+
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.42);
+}
+
+
+.impact-hero-image img {
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+
+  object-position: center;
+
+  display: block;
+}
+
+
+.impact-image-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  padding: 38px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(2, 7, 16, 0.02) 35%,
+      rgba(2, 7, 16, 0.82) 100%
+    );
+}
+
+
+.impact-image-overlay p {
+  margin: 0;
+
+  font-size: 24px;
+
+  font-weight: 600;
+
+  line-height: 1.3;
+
+  letter-spacing: 0.03em;
+
+  color: #ffffff;
+}
+
+
+/* 모바일 */
+@media (max-width: 768px) {
+
+  .impact-hero-image {
+    aspect-ratio: 4 / 3;
+
+    margin-bottom: 22px;
+
+    border-radius: 22px;
+  }
+
+
+  .impact-image-overlay {
+    padding: 22px;
+  }
+
+
+  .impact-image-overlay p {
+    font-size: 18px;
+  }
+
+}
