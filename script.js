@@ -1,255 +1,97 @@
-// 현재 연도 자동 표시
-document.getElementById("currentYear").textContent = new Date().getFullYear();
-
-// 모바일 메뉴 토글
-const menuToggle = document.getElementById("menuToggle");
-const siteNav = document.getElementById("siteNav");
-
-menuToggle.addEventListener("click", () => {
-  siteNav.classList.toggle("active");
-});
-
 // ======================================================
-// 메뉴 클릭 시 해당 섹션을 화면 중앙으로 이동
+// CURRENT YEAR
 // ======================================================
 
-document.querySelectorAll(".site-nav a").forEach((link) => {
+const currentYear =
+  document.getElementById("currentYear");
 
-  link.addEventListener("click", (event) => {
-
-    const targetId = link.getAttribute("href");
-
-    if (!targetId || !targetId.startsWith("#")) {
-      return;
-    }
-
-    event.preventDefault();
-
-    const target = document.querySelector(targetId);
-
-    if (!target) {
-      return;
-    }
-
-    // 모바일 메뉴 닫기
-    siteNav.classList.remove("active");
-
-
-    const header =
-      document.querySelector(".site-header");
-
-    const headerHeight =
-      header ? header.offsetHeight : 0;
-
-
-    const viewportHeight =
-      window.innerHeight;
-
-    const targetHeight =
-      target.offsetHeight;
-
-
-    let targetPosition;
-
-
-    /*
-      섹션 내용이 화면보다 작으면
-      화면 중앙에 배치
-    */
-    if (
-      targetHeight <
-      viewportHeight - headerHeight
-    ) {
-
-      targetPosition =
-        target.offsetTop
-        - ((viewportHeight - targetHeight) / 2)
-        - (headerHeight / 2);
-
-    }
-
-    /*
-      내용이 긴 섹션은
-      제목이 헤더 아래에서 시작
-    */
-    else {
-
-      targetPosition =
-        target.offsetTop
-        - headerHeight
-        - 20;
-
-    }
-
-
-    window.scrollTo({
-
-      top: targetPosition,
-
-      behavior: "smooth"
-
-    });
-
-  });
-
-});
-
-// 반짝이는 별 생성
-const starfield = document.getElementById("starfield");
-const starCount = 260;
-
-for (let i = 0; i < starCount; i++) {
-  const star = document.createElement("span");
-  star.classList.add("star");
-
-  const size = Math.random() * 3 + 1;
-  const posX = Math.random() * 100;
-  const posY = Math.random() * 100;
-  const delay = Math.random() * 6;
-  const duration = Math.random() * 4 + 3;
-  const opacity = Math.random() * 0.7 + 0.2;
-
-  star.style.width = `${size}px`;
-  star.style.height = `${size}px`;
-  star.style.left = `${posX}%`;
-  star.style.top = `${posY}%`;
-  star.style.animationDelay = `${delay}s`;
-  star.style.animationDuration = `${duration}s`;
-  star.style.opacity = opacity;
-
-  starfield.appendChild(star);
+if (currentYear) {
+  currentYear.textContent =
+    new Date().getFullYear();
 }
-// 스크롤 시 섹션 페이드 인
-const fadeSections = document.querySelectorAll(
-  ".section, .hero"
-);
 
-fadeSections.forEach((section) => {
-  section.classList.add("fade-section");
-});
-
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("show");
-      }
-    });
-  },
-  {
-    threshold: 0.15,
-  }
-);
-
-fadeSections.forEach((section) => {
-  observer.observe(section);
-});
-
-// 첫 화면은 바로 표시
-document.querySelector(".hero")?.classList.add("show");
 
 // ======================================================
-// FEATURED PROJECTS - SCROLL REVEAL
+// MOBILE MENU
 // ======================================================
 
-const projectCards =
-  document.querySelectorAll(".project-card");
+const menuToggle =
+  document.getElementById("menuToggle");
 
-const projectObserver =
-  new IntersectionObserver(
-    (entries, observer) => {
+const siteNav =
+  document.getElementById("siteNav");
 
-      entries.forEach((entry) => {
 
-        if (entry.isIntersecting) {
+if (menuToggle && siteNav) {
 
-          entry.target.classList.add("show");
+  menuToggle.addEventListener(
+    "click",
+    () => {
 
-          observer.unobserve(entry.target);
+      siteNav.classList.toggle("active");
 
-        }
-
-      });
-
-    },
-    {
-      threshold: 0.18
     }
   );
 
-projectCards.forEach((card) => {
-  projectObserver.observe(card);
-});
+}
+
 
 // ======================================================
-// SMOOTH NAVIGATION + SLOW FADE IN / FADE OUT
+// SMOOTH SECTION NAVIGATION
+//
+// 중요:
+// 모든 메뉴 이동은 이 코드 하나만 담당합니다.
 // ======================================================
 
-const transitionLinks =
+const navigationLinks =
   document.querySelectorAll(
     '.site-nav a[href^="#"], .brand[href^="#"], .hero-buttons a[href^="#"]'
   );
 
-let sectionTransitionRunning = false;
+
+navigationLinks.forEach((link) => {
+
+  link.addEventListener(
+    "click",
+    (event) => {
+
+      const targetId =
+        link.getAttribute("href");
 
 
-transitionLinks.forEach((link) => {
-
-  link.addEventListener("click", (event) => {
-
-    const targetId = link.getAttribute("href");
-
-    if (
-      !targetId ||
-      targetId === "#" ||
-      sectionTransitionRunning
-    ) {
-      return;
-    }
+      if (
+        !targetId ||
+        targetId === "#" ||
+        !targetId.startsWith("#")
+      ) {
+        return;
+      }
 
 
-    const target =
-      document.querySelector(targetId);
-
-    if (!target) {
-      return;
-    }
+      const target =
+        document.querySelector(targetId);
 
 
-    event.preventDefault();
-
-    sectionTransitionRunning = true;
-
-
-    /* 모바일 메뉴 닫기 */
-    const navMenu =
-      document.getElementById("siteNav");
-
-    if (navMenu) {
-      navMenu.classList.remove("active");
-    }
+      if (!target) {
+        return;
+      }
 
 
-    /* --------------------------------------------
-       STEP 1
-       현재 화면 천천히 Fade Out
-    -------------------------------------------- */
-
-    document.body.classList.add(
-      "section-changing"
-    );
+      event.preventDefault();
 
 
-    /*
-      Fade Out이 충분히 진행된 뒤 이동
-    */
-    setTimeout(() => {
+      // 모바일 메뉴 닫기
+      if (siteNav) {
+        siteNav.classList.remove("active");
+      }
 
 
+      // 헤더 높이 계산
       const header =
         document.querySelector(
           ".site-header"
         );
+
 
       const headerHeight =
         header
@@ -260,12 +102,20 @@ transitionLinks.forEach((link) => {
       let destination = 0;
 
 
-      /* HOME */
+      // ==================================================
+      // HOME
+      // ==================================================
+
       if (targetId === "#home") {
 
         destination = 0;
 
       }
+
+
+      // ==================================================
+      // OTHER SECTIONS
+      // ==================================================
 
       else {
 
@@ -273,7 +123,13 @@ transitionLinks.forEach((link) => {
           target.getBoundingClientRect();
 
 
-        const targetTop =
+        /*
+          현재 스크롤 위치 +
+          현재 화면에서의 target 위치
+
+          = 문서 전체 기준 target 위치
+        */
+        const absoluteTop =
           window.scrollY +
           targetRect.top;
 
@@ -292,8 +148,8 @@ transitionLinks.forEach((link) => {
 
 
         /*
-          내용이 한 화면보다 작으면
-          해당 섹션을 화면 가운데 배치
+          섹션 내용이 한 화면 안에 들어오면
+          섹션을 화면 가운데 배치
         */
         if (
           targetHeight <
@@ -301,7 +157,7 @@ transitionLinks.forEach((link) => {
         ) {
 
           destination =
-            targetTop
+            absoluteTop
             -
             headerHeight
             -
@@ -312,73 +168,253 @@ transitionLinks.forEach((link) => {
 
         }
 
+
         /*
-          긴 섹션은 제목부터 정상적으로 보이게
+          ABOUT처럼 내용이 긴 섹션은
+          제목이 헤더 아래에서 시작하도록 배치
         */
         else {
 
           destination =
-            targetTop
+            absoluteTop
             -
             headerHeight
             -
-            30;
+            24;
 
         }
 
       }
 
 
-      /* --------------------------------------------
-         STEP 2
-         부드럽게 실제 스크롤 이동
-      -------------------------------------------- */
-
+      /*
+        딱 한 번만 이동합니다.
+        중간 보정 이동 없음.
+      */
       window.scrollTo({
 
-        top: Math.max(
-          destination,
-          0
-        ),
+        top:
+          Math.max(
+            destination,
+            0
+          ),
 
         behavior: "smooth"
 
       });
 
+    }
 
-      /*
-        스크롤이 움직이는 동안
-        화면은 희미한 상태 유지
-      */
-      setTimeout(() => {
-
-
-        /* --------------------------------------------
-           STEP 3
-           새 섹션 천천히 Fade In
-        -------------------------------------------- */
-
-        document.body.classList.remove(
-          "section-changing"
-        );
-
-
-        /*
-          Fade In이 완료된 이후
-          다음 메뉴 입력 허용
-        */
-        setTimeout(() => {
-
-          sectionTransitionRunning = false;
-
-        }, 1050);
-
-
-      }, 750);
-
-
-    }, 850);
-
-  });
+  );
 
 });
+
+
+// ======================================================
+// STAR FIELD
+// ======================================================
+
+const starfield =
+  document.getElementById("starfield");
+
+
+const starCount = 260;
+
+
+if (starfield) {
+
+  for (
+    let i = 0;
+    i < starCount;
+    i++
+  ) {
+
+    const star =
+      document.createElement("span");
+
+
+    star.classList.add("star");
+
+
+    const size =
+      Math.random() * 3 + 1;
+
+
+    const posX =
+      Math.random() * 100;
+
+
+    const posY =
+      Math.random() * 100;
+
+
+    const delay =
+      Math.random() * 6;
+
+
+    const duration =
+      Math.random() * 4 + 3;
+
+
+    const opacity =
+      Math.random() * 0.7 + 0.2;
+
+
+    star.style.width =
+      `${size}px`;
+
+
+    star.style.height =
+      `${size}px`;
+
+
+    star.style.left =
+      `${posX}%`;
+
+
+    star.style.top =
+      `${posY}%`;
+
+
+    star.style.animationDelay =
+      `${delay}s`;
+
+
+    star.style.animationDuration =
+      `${duration}s`;
+
+
+    star.style.opacity =
+      opacity;
+
+
+    starfield.appendChild(star);
+
+  }
+
+}
+
+
+// ======================================================
+// SECTION SCROLL FADE-IN
+// ======================================================
+
+const fadeSections =
+  document.querySelectorAll(
+    ".section, .hero"
+  );
+
+
+fadeSections.forEach(
+  (section) => {
+
+    section.classList.add(
+      "fade-section"
+    );
+
+  }
+);
+
+
+const sectionObserver =
+  new IntersectionObserver(
+
+    (entries) => {
+
+      entries.forEach(
+        (entry) => {
+
+          if (
+            entry.isIntersecting
+          ) {
+
+            entry.target.classList.add(
+              "show"
+            );
+
+          }
+
+        }
+      );
+
+    },
+
+    {
+      threshold: 0.15
+    }
+
+  );
+
+
+fadeSections.forEach(
+  (section) => {
+
+    sectionObserver.observe(
+      section
+    );
+
+  }
+);
+
+
+// 첫 화면 바로 표시
+document
+  .querySelector(".hero")
+  ?.classList.add("show");
+
+
+// ======================================================
+// FEATURED PROJECTS
+// SCROLL REVEAL
+// ======================================================
+
+const projectCards =
+  document.querySelectorAll(
+    ".project-card"
+  );
+
+
+const projectObserver =
+  new IntersectionObserver(
+
+    (entries, observer) => {
+
+      entries.forEach(
+        (entry) => {
+
+          if (
+            entry.isIntersecting
+          ) {
+
+            entry.target.classList.add(
+              "show"
+            );
+
+
+            observer.unobserve(
+              entry.target
+            );
+
+          }
+
+        }
+      );
+
+    },
+
+    {
+      threshold: 0.18
+    }
+
+  );
+
+
+projectCards.forEach(
+  (card) => {
+
+    projectObserver.observe(
+      card
+    );
+
+  }
+);
