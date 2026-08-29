@@ -975,117 +975,111 @@ p {
 }
 
 /* =========================================================
-   PROJECTS
+   FEATURED PROJECTS - FINAL + ANIMATION
 ========================================================= */
 
 .project-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 26px;
-}
-
-.project-card {
-  min-height: unset;
-  aspect-ratio: 16 / 10;
-
-  border-radius: 28px;
-  overflow: hidden;
-  position: relative;
-
-  border: 1px solid rgba(138, 193, 255, 0.18);
-  box-shadow: var(--shadow);
-
-  background-color: #071223;
-
-  transition:
-    transform 0.3s ease,
-    box-shadow 0.3s ease;
-}
-
-.project-card:hover {
-  transform: translateY(-6px) scale(1.01);
-
-  box-shadow:
-    0 32px 70px rgba(0, 0, 0, 0.48);
-}
-
-.project-overlay {
-  position: absolute;
-  inset: auto 0 0 0;
-
-  padding: 34px;
-
-  background:
-    linear-gradient(
-      180deg,
-      transparent,
-      rgba(3, 8, 17, 0.95)
-    );
-}
-
-.project-overlay h3 {
-  margin-bottom: 10px;
-  font-size: 26px;
-}
-
-.project-overlay p {
-  margin-bottom: 0;
-}
-
-/* =========================================================
-   FEATURED PROJECTS - LARGE CARDS
-========================================================= */
-
-.project-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 30px;
+  align-items: stretch;
 }
+
+
+/* ---------------------------------------------------------
+   공통 프로젝트 카드
+--------------------------------------------------------- */
 
 .project-card {
   position: relative;
 
-  min-height: 520px;
+  min-height: 460px;
 
   border-radius: 30px;
   overflow: hidden;
+
+  background-color: #071223;
 
   border: 1px solid rgba(138, 193, 255, 0.20);
 
   box-shadow:
     0 30px 70px rgba(0, 0, 0, 0.42);
 
-  background-color: #071223;
+  /* 처음에는 숨겨진 상태 */
+  opacity: 0;
+
+  transform:
+    translateY(45px)
+    scale(0.97);
 
   transition:
-    transform 0.35s ease,
+    opacity 0.9s ease,
+    transform 0.9s cubic-bezier(.2, .7, .2, 1),
     box-shadow 0.35s ease,
     border-color 0.35s ease;
 }
 
-.project-card:hover {
-  transform: translateY(-8px);
 
-  border-color: rgba(120, 205, 255, 0.42);
+/* 화면에 들어왔을 때 */
+.project-card.show {
+  opacity: 1;
 
-  box-shadow:
-    0 38px 85px rgba(0, 0, 0, 0.52),
-    0 0 30px rgba(80, 170, 255, 0.10);
+  transform:
+    translateY(0)
+    scale(1);
 }
 
 
-/* 마지막 3번째 프로젝트를 한 줄 전체 폭으로 */
-.project-card:nth-child(3) {
-  grid-column: 1 / -1;
+/* 카드 순차 등장 */
+.project-card:nth-child(1) {
+  transition-delay: 0.05s;
+}
 
-  min-height: 600px;
+.project-card:nth-child(2) {
+  transition-delay: 0.18s;
+}
+
+.project-card:nth-child(3) {
+  transition-delay: 0.31s;
+}
+
+
+/* 마우스 오버 */
+.project-card.show:hover {
+  transform:
+    translateY(-8px)
+    scale(1.01);
+
+  border-color:
+    rgba(120, 205, 255, 0.46);
+
+  box-shadow:
+    0 38px 85px rgba(0, 0, 0, 0.52),
+    0 0 35px rgba(80, 170, 255, 0.12);
 }
 
 
 /* =========================================================
-   FEATURED PROJECTS IMAGES
+   역삼각형 배치
 ========================================================= */
 
+.project-card:nth-child(3) {
+  grid-column: 1 / -1;
+
+  width:
+    calc((100% - 30px) / 2);
+
+  justify-self: center;
+
+  min-height: 460px;
+}
+
+
+/* =========================================================
+   PROJECT IMAGES
+========================================================= */
+
+/* GLOBAL CONCERT PROJECT */
 .project-one {
   background:
     linear-gradient(
@@ -1100,6 +1094,7 @@ p {
 }
 
 
+/* K-CULTURE EXHIBITION */
 .project-two {
   background:
     linear-gradient(
@@ -1114,6 +1109,7 @@ p {
 }
 
 
+/* GLOBAL ENTERTAINMENT IP */
 .project-three {
   background:
     linear-gradient(
@@ -1128,7 +1124,10 @@ p {
 }
 
 
-/* 텍스트 영역 */
+/* =========================================================
+   PROJECT TEXT OVERLAY
+========================================================= */
+
 .project-overlay {
   position: absolute;
 
@@ -1136,155 +1135,91 @@ p {
   right: 0;
   bottom: 0;
 
-  padding: 42px;
+  padding: 34px;
 
   background:
     linear-gradient(
       180deg,
-      transparent 0%,
+      rgba(2, 7, 16, 0.00) 0%,
+      rgba(2, 7, 16, 0.28) 28%,
       rgba(2, 7, 16, 0.92) 100%
     );
 }
 
 
-.project-overlay h3 {
-  margin-bottom: 12px;
+/* 텍스트도 살짝 늦게 등장 */
+.project-overlay h3,
+.project-overlay p {
+  opacity: 0;
 
-  font-size: clamp(28px, 2vw, 38px);
+  transform: translateY(14px);
+
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+
+
+.project-card.show .project-overlay h3,
+.project-card.show .project-overlay p {
+  opacity: 1;
+
+  transform: translateY(0);
+}
+
+
+.project-card.show .project-overlay h3 {
+  transition-delay: 0.20s;
+}
+
+
+.project-card.show .project-overlay p {
+  transition-delay: 0.30s;
+}
+
+
+.project-overlay h3 {
+  margin-bottom: 10px;
+
+  font-size: 24px;
 
   line-height: 1.1;
+
+  color: #ffffff;
 }
 
 
 .project-overlay p {
-  max-width: 650px;
+  max-width: 620px;
 
   margin-bottom: 0;
 
-  font-size: 15px;
+  font-size: 14px;
 
-  line-height: 1.75;
+  line-height: 1.7;
 
-  color: rgba(230, 239, 250, 0.88);
+  color:
+    rgba(230, 239, 250, 0.88);
 }
-
-
-/* =========================================================
-   CONTACT
-========================================================= */
-
-.contact-grid {
-  display: grid;
-
-  grid-template-columns:
-    1fr 1fr;
-
-  gap: 28px;
-}
-
-
-.contact-list {
-  list-style: none;
-
-  padding: 0;
-
-  margin: 0;
-}
-
-
-.contact-list li {
-  margin-bottom: 16px;
-
-  color: var(--muted);
-}
-
-
-
-/* =========================================================
-   FOOTER
-========================================================= */
-
-.site-footer {
-  position: relative;
-
-  z-index: 2;
-
-  padding: 40px 0 60px;
-
-  border-top:
-    1px solid
-    rgba(255,255,255,0.06);
-
-  background:
-    rgba(3,9,19,0.54);
-
-  backdrop-filter:
-    blur(12px);
-}
-
-
-.footer-inner {
-  display: flex;
-
-  align-items: center;
-
-  justify-content:
-    space-between;
-
-  gap: 28px;
-}
-
-
-.footer-brand img {
-  width: 240px;
-}
-
-
-.footer-text p {
-  margin: 0 0 8px;
-
-  text-align: right;
-}
-
-
-
-/* =========================================================
-   FADE ANIMATION
-========================================================= */
-
-.fade-section {
-  opacity: 0;
-
-  transform:
-    translateY(35px);
-
-  transition:
-    opacity .9s ease,
-    transform .9s ease;
-}
-
-
-.fade-section.show {
-  opacity: 1;
-
-  transform:
-    translateY(0);
-}
-
 
 
 /* =========================================================
    TABLET
 ========================================================= */
 
-@media (max-width: 1100px) {
+@media (max-width: 1000px) {
 
-  .business-image-grid {
+  .project-grid {
     grid-template-columns: 1fr;
   }
 
-  .business-image-card {
-    aspect-ratio: 16 / 10;
+  .project-card,
+  .project-card:nth-child(3) {
+    width: 100%;
+
+    grid-column: auto;
+
+    min-height: 430px;
   }
 
 }
@@ -1294,263 +1229,55 @@ p {
    MOBILE
 ========================================================= */
 
-@media (max-width: 900px) {
-
-  html,
-  body {
-    width: 100%;
-
-    overflow-x: hidden;
-  }
-
-
-  .container,
-  .section > .container {
-    width:
-      calc(100% - 32px);
-
-    max-width: 100%;
-  }
-
-
-  .site-header {
-    background:
-      rgba(3,10,22,0.90);
-  }
-
-
-  .header-inner {
-    min-height: 76px;
-  }
-
-
-  .brand-logo {
-    width: 170px;
-
-    max-width: 60vw;
-  }
-
-
-  .menu-toggle {
-    display: block;
-
-    position: relative;
-
-    z-index: 50;
-  }
-
-
-  .site-nav {
-    position: absolute;
-
-    top: 76px;
-
-    left: 16px;
-    right: 16px;
-
-    display: none;
-
-    flex-direction: column;
-
-    align-items: stretch;
-
-    gap: 0;
-
-    padding: 14px 20px;
-
-    background:
-      rgba(4,12,25,0.98);
-
-    border:
-      1px solid
-      rgba(125,200,255,0.16);
-
-    border-radius: 18px;
-  }
-
-
-  .site-nav.active {
-    display: flex;
-  }
-
-
-  .site-nav a {
-    width: 100%;
-
-    padding: 14px 4px;
-
-    border-bottom:
-      1px solid
-      rgba(255,255,255,0.06);
-  }
-
-
-  .hero {
-    min-height: auto;
-
-    padding:
-      110px 0 80px;
-
-    scroll-margin-top: 76px;
-  }
-
-
-  .hero-grid {
-    grid-template-columns: 1fr;
-
-    gap: 45px;
-  }
-
-
-  .hero-copy h1 {
-    font-size:
-      clamp(42px,12vw,62px);
-
-    line-height: 1.02;
-  }
-
-
-  .hero-text {
-    font-size: 15px;
-  }
-
-
-  .hero-buttons {
-    display: grid;
-
-    grid-template-columns: 1fr;
-
-    gap: 12px;
-  }
-
-
-  .btn {
-    width: 100%;
-
-    min-width: 0;
-  }
-
-
-  .hero-glow-card {
-    width: 100%;
-
-    min-height: 320px;
-
-    padding:
-      35px 24px;
-  }
-
-
-  .section {
-    min-height: auto;
-
-    display: block;
-
-    padding:
-      85px 0;
-
-    scroll-margin-top: 76px;
-  }
-
-
-  .about-grid,
-  .contact-grid {
-    grid-template-columns: 1fr;
-  }
-
-
-  .business-image-grid {
-    grid-template-columns: 1fr;
-
-    gap: 18px;
-  }
-
-
-  .business-image-card {
-    min-height: 470px;
-  }
-
-
-  .business-image-content {
-    padding: 30px 25px;
-  }
-
-
-  .business-image-content h3 {
-    font-size: 25px;
-  }
-
+@media (max-width: 700px) {
 
   .project-grid {
-    grid-template-columns: 1fr;
+    gap: 20px;
   }
 
+  .project-card,
+  .project-card:nth-child(3) {
+    width: 100%;
 
-  .footer-inner {
-    flex-direction: column;
+    min-height: 340px;
 
-    align-items: flex-start;
+    border-radius: 22px;
   }
 
+  .project-overlay {
+    padding: 24px 20px;
+  }
 
-  .footer-text p {
-    text-align: left;
+  .project-overlay h3 {
+    font-size: 20px;
+  }
+
+  .project-overlay p {
+    font-size: 13px;
+
+    line-height: 1.6;
   }
 
 }
-
 
 
 /* =========================================================
-   SMALL MOBILE
+   접근성 - 모션 최소화 설정
 ========================================================= */
 
-@media (max-width: 430px) {
+@media (prefers-reduced-motion: reduce) {
 
-  .container,
-  .section > .container {
-    width:
-      calc(100% - 24px);
-  }
+  .project-card,
+  .project-overlay h3,
+  .project-overlay p {
+    opacity: 1;
 
+    transform: none;
 
-  .brand-logo {
-    width: 150px;
-  }
-
-
-  .hero-copy h1 {
-    font-size: 40px;
-  }
-
-
-  .section {
-    padding:
-      70px 0;
-  }
-
-
-  .card {
-    padding: 22px;
-  }
-
-
-  .business-image-card {
-    min-height: 420px;
-  }
-
-
-  .business-image-content {
-    padding: 25px 22px;
-  }
-
-
-  .business-image-content h3 {
-    font-size: 23px;
+    transition: none;
   }
 
 }
-
 
 /* =========================================================
    MOBILE BUSINESS CARDS
