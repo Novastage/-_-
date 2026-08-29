@@ -1323,3 +1323,40 @@ p {
   opacity: 1;
   transform: translateY(0);
 }
+/* =========================================================
+   SECTION POSITION / NAVIGATION ALIGNMENT
+========================================================= */
+
+/* 각 상세 섹션을 최소 한 화면 높이로 */
+.section {
+  min-height: calc(100vh - 106px);
+  display: flex;
+  align-items: center;
+  scroll-margin-top: 106px;
+}
+
+/* 섹션 내부 컨테이너는 전체 폭 유지 */
+.section > .container {
+  width: min(var(--container), calc(100% - 80px));
+}
+
+/* HERO도 메뉴 이동 기준 보정 */
+.hero {
+  scroll-margin-top: 106px;
+}
+
+/* 모바일 */
+@media (max-width: 900px) {
+
+  .section {
+    min-height: auto;
+    padding-top: 110px;
+    padding-bottom: 110px;
+    scroll-margin-top: 90px;
+  }
+
+  .hero {
+    scroll-margin-top: 90px;
+  }
+
+}
