@@ -1307,3 +1307,19 @@ p {
   }
 
 }
+/* =========================================
+   SCROLL FADE-IN ANIMATION
+========================================= */
+
+.fade-section {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 0.9s ease,
+    transform 0.9s ease;
+}
+
+.fade-section.show {
+  opacity: 1;
+  transform: translateY(0);
+}
