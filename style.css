@@ -977,134 +977,51 @@ p {
 
 
 /* =========================================================
-   PROJECTS
+   FEATURED PROJECTS IMAGES
 ========================================================= */
 
-.project-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(3,1fr);
-
-  gap: 26px;
-}
-
-
-.project-card {
-  min-height: 400px;
-
-  border-radius: 28px;
-
-  overflow: hidden;
-
-  position: relative;
-
-  border:
-    1px solid
-    rgba(138,193,255,0.18);
-
-  box-shadow:
-    var(--shadow);
-
-  transition:
-    transform .3s ease;
-}
-
-
-.project-card:hover {
-  transform:
-    translateY(-6px)
-    scale(1.01);
-}
-
-
+/* GLOBAL CONCERT PROJECT */
 .project-one {
   background:
-
-    radial-gradient(
-      circle at 50% 15%,
-      rgba(121,113,255,0.48),
-      transparent 36%
-    ),
-
     linear-gradient(
       180deg,
-      rgba(8,18,36,0.08),
-      rgba(8,18,36,0.94)
+      rgba(3, 8, 17, 0.03) 0%,
+      rgba(3, 8, 17, 0.10) 45%,
+      rgba(3, 8, 17, 0.88) 100%
     ),
-
-    url(
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?auto=format&fit=crop&w=1600&q=85"
-    )
-    center / cover;
+    url("assets/global-concert-project.png")
+    center center / cover
+    no-repeat;
 }
 
 
+/* K-CULTURE EXHIBITION */
 .project-two {
   background:
-
-    radial-gradient(
-      circle at 50% 15%,
-      rgba(98,190,255,0.40),
-      transparent 36%
-    ),
-
     linear-gradient(
       180deg,
-      rgba(8,18,36,0.12),
-      rgba(8,18,36,0.94)
+      rgba(3, 8, 17, 0.02) 0%,
+      rgba(3, 8, 17, 0.10) 45%,
+      rgba(3, 8, 17, 0.88) 100%
     ),
-
-    url(
-      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=1600&q=85"
-    )
-    center / cover;
+    url("assets/k-culture-exhibition.png")
+    center center / cover
+    no-repeat;
 }
 
 
+/* GLOBAL ENTERTAINMENT IP */
 .project-three {
   background:
-
-    radial-gradient(
-      circle at 50% 15%,
-      rgba(97,255,215,0.30),
-      transparent 36%
-    ),
-
     linear-gradient(
       180deg,
-      rgba(8,18,36,0.12),
-      rgba(8,18,36,0.94)
+      rgba(3, 8, 17, 0.02) 0%,
+      rgba(3, 8, 17, 0.10) 45%,
+      rgba(3, 8, 17, 0.88) 100%
     ),
-
-    url(
-      "https://images.unsplash.com/photo-1511379938547-c1f69419868d?auto=format&fit=crop&w=1600&q=85"
-    )
-    center / cover;
-}
-
-
-.project-overlay {
-  position: absolute;
-
-  inset:
-    auto 0 0 0;
-
-  padding: 34px;
-
-  background:
-    linear-gradient(
-      180deg,
-      transparent,
-      rgba(3,8,17,0.95)
-    );
-}
-
-
-.project-overlay h3 {
-  margin-bottom: 10px;
-
-  font-size: 26px;
+    url("assets/global-entertainment-ip.png")
+    center center / cover
+    no-repeat;
 }
 
 
