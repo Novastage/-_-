@@ -18,7 +18,7 @@ document.querySelectorAll(".site-nav a").forEach((link) => {
 
 // 반짝이는 별 생성
 const starfield = document.getElementById("starfield");
-const starCount = 180;
+const starCount = 260;
 
 for (let i = 0; i < starCount; i++) {
   const star = document.createElement("span");
