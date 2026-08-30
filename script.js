@@ -299,10 +299,44 @@ if (starfield) {
 // SECTION SCROLL FADE-IN
 // ======================================================
 
-const fadeSections =
-  document.querySelectorAll(
-    ".section, .hero"
-  );
+if (window.innerWidth > 1024) {
+
+  const fadeSections =
+    document.querySelectorAll(
+      ".section, .hero"
+    );
+
+  fadeSections.forEach((section) => {
+    section.classList.add("fade-section");
+  });
+
+  const sectionObserver =
+    new IntersectionObserver(
+      (entries) => {
+
+        entries.forEach((entry) => {
+
+          if (entry.isIntersecting) {
+            entry.target.classList.add("show");
+          }
+
+        });
+
+      },
+      {
+        threshold: 0.15
+      }
+    );
+
+  fadeSections.forEach((section) => {
+    sectionObserver.observe(section);
+  });
+
+  document
+    .querySelector(".hero")
+    ?.classList.add("show");
+
+}
 
 
 fadeSections.forEach(
@@ -368,10 +402,42 @@ document
 // SCROLL REVEAL
 // ======================================================
 
-const projectCards =
-  document.querySelectorAll(
-    ".project-card"
-  );
+if (window.innerWidth > 1024) {
+
+  const projectCards =
+    document.querySelectorAll(
+      ".project-card"
+    );
+
+  const projectObserver =
+    new IntersectionObserver(
+      (entries, observer) => {
+
+        entries.forEach((entry) => {
+
+          if (entry.isIntersecting) {
+
+            entry.target.classList.add("show");
+
+            observer.unobserve(
+              entry.target
+            );
+
+          }
+
+        });
+
+      },
+      {
+        threshold: 0.18
+      }
+    );
+
+  projectCards.forEach((card) => {
+    projectObserver.observe(card);
+  });
+
+}
 
 
 const projectObserver =
