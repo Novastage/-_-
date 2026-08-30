@@ -2264,3 +2264,70 @@ body.section-changing main {
   }
 
 }
+
+/* =========================================================
+   MOBILE / TABLET PERFORMANCE MODE
+   1024px 이하에서는 애니메이션 최소화
+========================================================= */
+
+@media (max-width: 1024px) {
+
+  /* 섹션 페이드 효과 제거 */
+  .fade-section,
+  .fade-section.show {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* FEATURED PROJECTS 등장 효과 제거 */
+  .project-card,
+  .project-card.show {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* 프로젝트 내부 텍스트 등장 효과 제거 */
+  .project-overlay h3,
+  .project-overlay p,
+  .project-card.show .project-overlay h3,
+  .project-card.show .project-overlay p {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* 사진 카드 hover 확대 제거 */
+  .business-image-card,
+  .business-image-card:hover,
+  .project-card:hover {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* 카드 내부 사진 확대 제거 */
+  .business-image-card img,
+  .business-image-card:hover img {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* 일반 카드 hover 이동 제거 */
+  .card,
+  .card:hover {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* 성운 움직임 정지 */
+  .nebula {
+    animation: none !important;
+  }
+
+  /* 별 반짝임도 조금 가볍게 */
+  .star {
+    animation-duration: 8s !important;
+    box-shadow: none !important;
+  }
+}
