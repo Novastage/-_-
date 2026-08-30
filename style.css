@@ -2206,3 +2206,61 @@ body.section-changing main {
   }
 
 }
+
+
+/* =========================================================
+   DESKTOP IMAGE CARD ZOOM EFFECT
+   사진이 들어간 카드만 확대
+========================================================= */
+
+@media (min-width: 1025px) {
+
+  /* WHAT WE CREATE */
+  .business-image-card,
+
+  /* FEATURED PROJECTS */
+  .project-card {
+
+    position: relative;
+
+    transform-origin: center center;
+
+    transition:
+      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.45s ease,
+      border-color 0.45s ease;
+
+    will-change: transform;
+  }
+
+
+  /* 마우스를 올렸을 때 확대 */
+  .business-image-card:hover,
+  .project-card:hover {
+
+    transform: scale(1.35) !important;
+
+    z-index: 100;
+
+    border-color:
+      rgba(120, 215, 255, 0.55);
+
+    box-shadow:
+      0 45px 110px rgba(0, 0, 0, 0.72),
+      0 0 50px rgba(80, 175, 255, 0.18);
+  }
+
+
+  /* WHAT WE CREATE 내부 이미지 살짝 확대 */
+  .business-image-card:hover img {
+    transform: scale(1.04);
+  }
+
+
+  /* 부모에서 카드가 잘리지 않게 */
+  .business-image-grid,
+  .project-grid {
+    overflow: visible !important;
+  }
+
+}
