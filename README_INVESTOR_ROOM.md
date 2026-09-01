@@ -34,7 +34,7 @@ The migration in `db/migrations/001_investor_room.sql` creates admin users/sessi
 
 ## Private storage and large uploads
 
-Create or attach a **private** Vercel Blob store to the same existing Vercel project and add its generated `BLOB_READ_WRITE_TOKEN`. Admin uploads first obtain a short-lived, content-type-restricted token from `/api/admin/blob-upload`; only an authenticated administrator can obtain it. The browser then uploads directly to the private Blob store, including multipart uploads for files over 100 MB. The server callback writes only the Blob pathname to the database. Blob URLs are never rendered in the admin or investor UI.
+Create or attach a **private** Vercel Blob store to the same existing Vercel project and add its generated `BLOB_READ_WRITE_TOKEN`. Admin uploads first obtain a short-lived, content-type-restricted token from `/api/upload`; only an authenticated administrator can obtain it. The browser then uploads directly to the private Blob store, including multipart uploads for files over 100 MB. The server callback writes only the Blob pathname to the database. Blob URLs are never rendered in the admin or investor UI.
 
 This avoids the Vercel Function request-body limit for large music/PDF files. Investors receive audio/PDF/photo bytes only through authenticated `/api/investor/...` proxy endpoints; no download controls or public media links are provided.
 

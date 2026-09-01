@@ -1,10 +1,10 @@
 import { handleUpload } from '@vercel/blob/client';
-import { requireAdmin } from '../_lib/auth.js';
-import { removePrivateFile } from '../_lib/blob.js';
-import { config, requireEnvironment } from '../_lib/config.js';
-import { id } from '../_lib/crypto.js';
-import { logAccess, query } from '../_lib/db.js';
-import { json, methodNotAllowed } from '../_lib/http.js';
+import { requireAdmin } from './_lib/auth.js';
+import { removePrivateFile } from './_lib/blob.js';
+import { config, requireEnvironment } from './_lib/config.js';
+import { id } from './_lib/crypto.js';
+import { logAccess, query } from './_lib/db.js';
+import { json, methodNotAllowed } from './_lib/http.js';
 
 const audioTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/wave'];
 const imageTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -12,7 +12,6 @@ const isUuid = (value) => /^[0-9a-f]{8}-[0-9a-f-]{27}$/i.test(String(value));
 const cleanText = (value, maximum = 500) => String(value || '').trim().slice(0, maximum);
 const isMusic = (kind) => kind === 'music' || kind === 'music-replace';
 const isPdf = (kind) => kind === 'global-pdf' || kind === 'global-pdf-replace';
-const isPhoto = (kind) => kind === 'global-photo' || kind === 'global-photo-replace';
 const isReplacement = (kind) => kind.endsWith('-replace');
 
 function readIntent(payload) {
@@ -89,12 +88,7 @@ export default async function handler(req, res) {
           return;
         }
         const profilePdf = isPdf(intent.kind);
-        await query(
-          `INSERT INTO global_representatives (id, country, name, position, role, short_bio, profile_photo_path, profile_pdf_path, is_active, display_order)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-           ON CONFLICT (id) DO UPDATE SET country = EXCLUDED.country, name = EXCLUDED.name, position = EXCLUDED.position, role = EXCLUDED.role, short_bio = EXCLUDED.short_bio, profile_photo_path = COALESCE(EXCLUDED.profile_photo_path, global_representatives.profile_photo_path), profile_pdf_path = COALESCE(EXCLUDED.profile_pdf_path, global_representatives.profile_pdf_path), is_active = (COALESCE(EXCLUDED.profile_pdf_path, global_representatives.profile_pdf_path) IS NOT NULL), display_order = EXCLUDED.display_order, updated_at = NOW()`,
-          [intent.globalId, intent.country, intent.name || null, intent.position || null, intent.role || null, intent.shortBio || null, profilePdf ? null : blob.pathname, profilePdf ? blob.pathname : null, profilePdf, intent.displayOrder]
-        );
+        await query(`INSERT INTO global_representatives (id, country, name, position, role, short_bio, profile_photo_path, profile_pdf_path, is_active, display_order) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO UPDATE SET country = EXCLUDED.country, name = EXCLUDED.name, position = EXCLUDED.position, role = EXCLUDED.role, short_bio = EXCLUDED.short_bio, profile_photo_path = COALESCE(EXCLUDED.profile_photo_path, global_representatives.profile_photo_path), profile_pdf_path = COALESCE(EXCLUDED.profile_pdf_path, global_representatives.profile_pdf_path), is_active = (COALESCE(EXCLUDED.profile_pdf_path, global_representatives.profile_pdf_path) IS NOT NULL), display_order = EXCLUDED.display_order, updated_at = NOW()`, [intent.globalId, intent.country, intent.name || null, intent.position || null, intent.role || null, intent.shortBio || null, profilePdf ? null : blob.pathname, profilePdf ? blob.pathname : null, profilePdf, intent.displayOrder]);
         await logAccess({ actorType: 'ADMIN', actorId: intent.adminUserId, eventType: profilePdf ? 'GLOBAL_PROFILE_UPLOADED' : 'GLOBAL_PHOTO_UPLOADED', resourceType: 'GLOBAL_REP', resourceId: intent.globalId });
       }
     });
