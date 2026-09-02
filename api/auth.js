@@ -13,9 +13,10 @@ async function investorLogin(req, res) {
   const rows = await query('SELECT * FROM investor_access_codes WHERE code_hash = $1', [hmac(code, process.env.ACCESS_CODE_PEPPER)]);
   const access = rows[0];
   const isExpired = access?.expires_at && new Date(access.expires_at) <= new Date();
-  if (!access || access.status !== 'UNUSED' || isExpired) {
-    if (access && isExpired) await query("UPDATE investor_access_codes SET status = 'EXPIRED' WHERE id = $1", [access.id]);
-    await logAccess({ actorType: 'SYSTEM', eventType: 'INVESTOR_LOGIN_DENIED', metadata: { ip: getClientIp(req) } });
+    if (!access || access.status !== 'UNUSED' || isExpired) {
+      if (access && isExpired) await query("UPDATE investor_access_codes SET status = 'EXPIRED' WHERE id = $1", [access.id]);
+      const denialReason = !access ? 'NOT_FOUND' : isExpired ? 'EXPIRED' : access.status;
+      await logAccess({ actorType: 'SYSTEM', eventType: 'INVESTOR_LOGIN_DENIED', resourceType: 'ACCESS_CODE', resourceId: access?.id || null, metadata: { reason: denialReason, ip: getClientIp(req) } });
     return json(res, 401, { error: 'This access code is invalid, expired, or already used.' });
   }
   const claimed = await query("UPDATE investor_access_codes SET status = 'ACTIVE_SESSION', first_access_at = COALESCE(first_access_at, NOW()), last_activity_at = NOW() WHERE id = $1 AND status = 'UNUSED' RETURNING id", [access.id]);

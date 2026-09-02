@@ -27,7 +27,7 @@ export default async function handler(req, res) {
         const rawCode = createAccessCode();
         try {
           const codeId = id();
-          await query('INSERT INTO investor_access_codes (id, code_hash, investor_label, company, memo, expires_at, created_by) VALUES ($1, $2, $3, $4, $5, $6, $7)', [codeId, hmac(rawCode, process.env.ACCESS_CODE_PEPPER), investorLabel, company, memo, expiryDate ? expiryDate.toISOString() : null, admin.admin_user_id]);
+          await query("INSERT INTO investor_access_codes (id, code_hash, investor_label, company, memo, status, expires_at, created_by) VALUES ($1, $2, $3, $4, $5, 'UNUSED', $6, $7)", [codeId, hmac(rawCode, process.env.ACCESS_CODE_PEPPER), investorLabel, company, memo, expiryDate ? expiryDate.toISOString() : null, admin.admin_user_id]);
           await logAccess({ actorType: 'ADMIN', actorId: admin.admin_user_id, eventType: 'ACCESS_CODE_CREATED', resourceType: 'ACCESS_CODE', resourceId: codeId });
           return json(res, 201, { code: { id: codeId, value: rawCode, investorLabel, expiresAt: expiryDate ? expiryDate.toISOString() : null } });
         } catch (error) { if (error?.code !== '23505') throw error; }
@@ -36,9 +36,9 @@ export default async function handler(req, res) {
     }
     if (req.method !== 'PATCH') return methodNotAllowed(res, ['GET', 'POST', 'PATCH']);
     const codeId = String(req.query?.id || '');
-    if (req.body?.action !== 'revoke' || !codeId) return json(res, 400, { error: 'Unsupported action.' });
-    const updated = await query("UPDATE investor_access_codes SET status = 'REVOKED' WHERE id = $1 AND status IN ('UNUSED', 'ACTIVE_SESSION') RETURNING id", [codeId]);
-    if (!updated[0]) return json(res, 404, { error: 'Active access code not found.' });
+    if (req.body?.action !== 'revoke' || req.body?.confirmation !== 'REVOKE' || !codeId) return json(res, 400, { error: 'Explicit revoke confirmation is required.' });
+    const updated = await query("UPDATE investor_access_codes SET status = 'REVOKED' WHERE id = $1 AND status IN ('UNUSED', 'ACTIVE_SESSION') AND created_at <= NOW() - INTERVAL '60 seconds' RETURNING id", [codeId]);
+    if (!updated[0]) return json(res, 409, { error: 'This access code cannot be revoked yet, has already been used, or was not found.' });
     await query('UPDATE investor_sessions SET revoked_at = NOW() WHERE access_code_id = $1 AND revoked_at IS NULL', [codeId]);
     await logAccess({ actorType: 'ADMIN', actorId: admin.admin_user_id, eventType: 'ACCESS_CODE_REVOKED', resourceType: 'ACCESS_CODE', resourceId: codeId });
     return json(res, 200, { ok: true });
