@@ -13,7 +13,7 @@ export async function investorSession(req) {
   const tokenHash = hmac(token, process.env.SESSION_SECRET);
   const rows = await query(
     `SELECT s.id AS session_id, s.access_code_id, s.expires_at AS session_expires_at,
-            c.investor_label, c.company, c.status, c.expires_at AS code_expires_at
+            c.investor_label, c.company, c.access_type, c.status, c.expires_at AS code_expires_at
        FROM investor_sessions s
        JOIN investor_access_codes c ON c.id = s.access_code_id
       WHERE s.token_hash = $1 AND s.revoked_at IS NULL`,
@@ -21,12 +21,14 @@ export async function investorSession(req) {
   );
   const session = rows[0];
   if (!session) return null;
-  const expired = new Date(session.session_expires_at) <= new Date()
-    || (session.code_expires_at && new Date(session.code_expires_at) <= new Date())
-    || session.status !== 'ACTIVE_SESSION';
+  const reusable = session.access_type === 'VALID_UNTIL';
+  const codeExpired = session.code_expires_at && new Date(session.code_expires_at) <= new Date();
+  const invalidStatus = reusable ? session.status !== 'UNUSED' : session.status !== 'ACTIVE_SESSION';
+  const expired = new Date(session.session_expires_at) <= new Date() || codeExpired || invalidStatus;
   if (expired) {
     await query('UPDATE investor_sessions SET revoked_at = NOW() WHERE id = $1', [session.session_id]);
-    await query("UPDATE investor_access_codes SET status = CASE WHEN status = 'REVOKED' THEN status ELSE 'USED' END WHERE id = $1", [session.access_code_id]);
+    if (!reusable) await query("UPDATE investor_access_codes SET status = CASE WHEN status = 'REVOKED' THEN status ELSE 'USED' END WHERE id = $1", [session.access_code_id]);
+    if (reusable && codeExpired) await query("UPDATE investor_access_codes SET status = CASE WHEN status = 'REVOKED' THEN status ELSE 'EXPIRED' END WHERE id = $1", [session.access_code_id]);
     return null;
   }
   await query('UPDATE investor_sessions SET last_activity_at = NOW() WHERE id = $1', [session.session_id]);
@@ -45,7 +47,7 @@ export async function requireInvestor(req, res) {
 
 export async function endInvestorSession(session, eventType = 'INVESTOR_LOGOUT') {
   await query('UPDATE investor_sessions SET revoked_at = NOW() WHERE id = $1', [session.session_id]);
-  await query("UPDATE investor_access_codes SET status = 'USED' WHERE id = $1 AND status = 'ACTIVE_SESSION'", [session.access_code_id]);
+  await query("UPDATE investor_access_codes SET status = 'USED' WHERE id = $1 AND access_type = 'ONE_TIME' AND status = 'ACTIVE_SESSION'", [session.access_code_id]);
   await logAccess({ actorType: 'INVESTOR', actorId: session.access_code_id, eventType });
 }
 

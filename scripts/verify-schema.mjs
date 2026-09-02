@@ -7,4 +7,9 @@ const rows = await sql.query("SELECT table_name FROM information_schema.tables W
 const found = rows.map((row) => row.table_name);
 const missing = required.filter((name) => !found.includes(name));
 if (missing.length) throw new Error(`Missing required tables: ${missing.join(', ')}`);
+const columns = await sql.query("SELECT table_name, column_name FROM information_schema.columns WHERE table_schema = 'public' AND ((table_name = 'investor_access_codes' AND column_name = 'access_type') OR (table_name = 'music_tracks' AND column_name = 'slug'))");
+const requiredColumns = ['investor_access_codes.access_type', 'music_tracks.slug'];
+const foundColumns = columns.map((row) => `${row.table_name}.${row.column_name}`);
+const missingColumns = requiredColumns.filter((name) => !foundColumns.includes(name));
+if (missingColumns.length) throw new Error(`Missing required columns: ${missingColumns.join(', ')}`);
 console.log(`Verified tables: ${found.join(', ')}`);

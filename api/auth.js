@@ -12,19 +12,24 @@ async function investorLogin(req, res) {
   if (!/^NOVA-[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) return badRequest(res, 'Enter a valid access code.');
   const rows = await query('SELECT * FROM investor_access_codes WHERE code_hash = $1', [hmac(code, process.env.ACCESS_CODE_PEPPER)]);
   const access = rows[0];
+  const accessType = access?.access_type === 'VALID_UNTIL' ? 'VALID_UNTIL' : 'ONE_TIME';
   const isExpired = access?.expires_at && new Date(access.expires_at) <= new Date();
-    if (!access || access.status !== 'UNUSED' || isExpired) {
-      if (access && isExpired) await query("UPDATE investor_access_codes SET status = 'EXPIRED' WHERE id = $1", [access.id]);
-      const denialReason = !access ? 'NOT_FOUND' : isExpired ? 'EXPIRED' : access.status;
-      await logAccess({ actorType: 'SYSTEM', eventType: 'INVESTOR_LOGIN_DENIED', resourceType: 'ACCESS_CODE', resourceId: access?.id || null, metadata: { reason: denialReason, ip: getClientIp(req) } });
+  if (!access || access.status !== 'UNUSED' || isExpired) {
+    if (access && isExpired && access.status !== 'REVOKED') await query("UPDATE investor_access_codes SET status = 'EXPIRED' WHERE id = $1", [access.id]);
+    const denialReason = !access ? 'NOT_FOUND' : isExpired ? 'EXPIRED' : access.status;
+    await logAccess({ actorType: 'SYSTEM', eventType: 'INVESTOR_LOGIN_DENIED', resourceType: 'ACCESS_CODE', resourceId: access?.id || null, metadata: { reason: denialReason, accessType, ip: getClientIp(req) } });
     return json(res, 401, { error: 'This access code is invalid, expired, or already used.' });
   }
-  const claimed = await query("UPDATE investor_access_codes SET status = 'ACTIVE_SESSION', first_access_at = COALESCE(first_access_at, NOW()), last_activity_at = NOW() WHERE id = $1 AND status = 'UNUSED' RETURNING id", [access.id]);
-  if (!claimed[0]) return json(res, 409, { error: 'This access code has just been used.' });
+  if (accessType === 'ONE_TIME') {
+    const claimed = await query("UPDATE investor_access_codes SET status = 'ACTIVE_SESSION', first_access_at = COALESCE(first_access_at, NOW()), last_activity_at = NOW() WHERE id = $1 AND status = 'UNUSED' RETURNING id", [access.id]);
+    if (!claimed[0]) return json(res, 409, { error: 'This access code has just been used.' });
+  } else {
+    await query("UPDATE investor_access_codes SET first_access_at = COALESCE(first_access_at, NOW()), last_activity_at = NOW() WHERE id = $1 AND status = 'UNUSED'", [access.id]);
+  }
   const token = randomToken();
   await query('INSERT INTO investor_sessions (id, access_code_id, token_hash, expires_at) VALUES ($1, $2, $3, $4)', [id(), access.id, hmac(token, process.env.SESSION_SECRET), expiresAt(config.investorSessionSeconds)]);
   setCookie(res, cookieNames.investorCookie, token, config.investorSessionSeconds);
-  await logAccess({ actorType: 'INVESTOR', actorId: access.id, eventType: 'INVESTOR_LOGIN_SUCCESS' });
+  await logAccess({ actorType: 'INVESTOR', actorId: access.id, eventType: 'INVESTOR_LOGIN_SUCCESS', metadata: { accessType } });
   return json(res, 200, { ok: true, redirect: '/investor/room/' });
 }
 

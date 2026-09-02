@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     if (!admin) return;
     if (req.method === 'GET') {
       const [codes, statusCounts, music, global] = await Promise.all([
-        query('SELECT id, investor_label, company, memo, status, expires_at, first_access_at, last_activity_at, created_at FROM investor_access_codes ORDER BY created_at DESC LIMIT 200'),
+        query('SELECT id, investor_label, company, memo, access_type, status, expires_at, first_access_at, last_activity_at, created_at FROM investor_access_codes ORDER BY created_at DESC LIMIT 200'),
         query("SELECT status, COUNT(*)::int AS count FROM investor_access_codes GROUP BY status"),
         query('SELECT COUNT(*)::int AS count FROM music_tracks'),
         query('SELECT COUNT(*)::int AS count FROM global_representatives')
@@ -20,16 +20,19 @@ export default async function handler(req, res) {
       const investorLabel = String(req.body?.investorLabel || '').trim();
       const company = String(req.body?.company || '').trim() || null;
       const memo = String(req.body?.memo || '').trim() || null;
+      const accessType = String(req.body?.accessType || 'ONE_TIME').trim().toUpperCase();
       const expiryDate = req.body?.expiresAt ? new Date(req.body.expiresAt) : null;
+      if (!['ONE_TIME', 'VALID_UNTIL'].includes(accessType)) return badRequest(res, 'Choose a valid access type.');
       if (expiryDate && Number.isNaN(expiryDate.getTime())) return badRequest(res, 'Enter a valid expiration date.');
+      if (accessType === 'VALID_UNTIL' && (!expiryDate || expiryDate <= new Date())) return badRequest(res, 'A future expiration date is required for reusable access.');
       if (!investorLabel) return badRequest(res, 'Investor name is required.');
       for (let attempt = 0; attempt < 5; attempt += 1) {
         const rawCode = createAccessCode();
         try {
           const codeId = id();
-          await query("INSERT INTO investor_access_codes (id, code_hash, investor_label, company, memo, status, expires_at, created_by) VALUES ($1, $2, $3, $4, $5, 'UNUSED', $6, $7)", [codeId, hmac(rawCode, process.env.ACCESS_CODE_PEPPER), investorLabel, company, memo, expiryDate ? expiryDate.toISOString() : null, admin.admin_user_id]);
-          await logAccess({ actorType: 'ADMIN', actorId: admin.admin_user_id, eventType: 'ACCESS_CODE_CREATED', resourceType: 'ACCESS_CODE', resourceId: codeId });
-          return json(res, 201, { code: { id: codeId, value: rawCode, investorLabel, expiresAt: expiryDate ? expiryDate.toISOString() : null } });
+          await query("INSERT INTO investor_access_codes (id, code_hash, investor_label, company, memo, access_type, status, expires_at, created_by) VALUES ($1, $2, $3, $4, $5, $6, 'UNUSED', $7, $8)", [codeId, hmac(rawCode, process.env.ACCESS_CODE_PEPPER), investorLabel, company, memo, accessType, expiryDate ? expiryDate.toISOString() : null, admin.admin_user_id]);
+          await logAccess({ actorType: 'ADMIN', actorId: admin.admin_user_id, eventType: 'ACCESS_CODE_CREATED', resourceType: 'ACCESS_CODE', resourceId: codeId, metadata: { accessType } });
+          return json(res, 201, { code: { id: codeId, value: rawCode, investorLabel, accessType, expiresAt: expiryDate ? expiryDate.toISOString() : null } });
         } catch (error) { if (error?.code !== '23505') throw error; }
       }
       return json(res, 500, { error: 'Unable to create a unique access code.' });

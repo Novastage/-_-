@@ -15,7 +15,7 @@ export default async function handler(req, res) {
       return json(res, 200, { investor: { label: session.investor_label, company: session.company }, counts: { music: music.count, global: global.count } });
     }
     if (type === 'music') {
-      const tracks = await query("SELECT id, title, category, genre, concept, target_artist, description FROM music_tracks WHERE is_active = TRUE ORDER BY category, display_order, created_at DESC");
+      const tracks = await query("SELECT id, title, slug, category, genre, concept, target_artist, description FROM music_tracks WHERE is_active = TRUE ORDER BY category, display_order, created_at DESC");
       await logAccess({ actorType: 'INVESTOR', actorId: session.access_code_id, eventType: 'MUSIC_LIBRARY_ACCESS' });
       return json(res, 200, { tracks: tracks.map((track) => ({ ...track, streamUrl: `/api/investor/media?type=music&id=${encodeURIComponent(track.id)}` })) });
     }

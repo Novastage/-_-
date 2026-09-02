@@ -5,6 +5,7 @@ import { config, requireEnvironment } from './_lib/config.js';
 import { id } from './_lib/crypto.js';
 import { logAccess, query } from './_lib/db.js';
 import { json, methodNotAllowed } from './_lib/http.js';
+import { normalizeTrackSlug } from './_lib/slug.js';
 
 const audioTypes = ['audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/x-wav', 'audio/wave'];
 const imageTypes = ['image/jpeg', 'image/png', 'image/webp'];
@@ -22,8 +23,9 @@ function readIntent(payload) {
     if (isReplacement(intent.kind) && !isUuid(intent.targetId)) throw new Error('Invalid music replacement request.');
     const title = cleanText(intent.title, 160);
     const category = cleanText(intent.category, 16).toUpperCase();
+    const slug = normalizeTrackSlug(intent.slug, { required: !isReplacement(intent.kind) });
     if (!isReplacement(intent.kind) && (!title || !['MALE', 'FEMALE'].includes(category))) throw new Error('Music title and category are required.');
-    return { kind: intent.kind, targetId: intent.targetId || null, issuedId: isUuid(intent.issuedId) ? intent.issuedId : null, title, category, genre: cleanText(intent.genre, 80), concept: cleanText(intent.concept, 160), targetArtist: cleanText(intent.targetArtist, 160), description: cleanText(intent.description, 1200), displayOrder: Number.parseInt(intent.displayOrder, 10) || 0, adminUserId: isUuid(intent.adminUserId) ? intent.adminUserId : null };
+    return { kind: intent.kind, targetId: intent.targetId || null, issuedId: isUuid(intent.issuedId) ? intent.issuedId : null, title, slug, category, genre: cleanText(intent.genre, 80), concept: cleanText(intent.concept, 160), targetArtist: cleanText(intent.targetArtist, 160), description: cleanText(intent.description, 1200), displayOrder: Number.parseInt(intent.displayOrder, 10) || 0, adminUserId: isUuid(intent.adminUserId) ? intent.adminUserId : null };
   }
   if (isReplacement(intent.kind) && !isUuid(intent.targetId)) throw new Error('Invalid global file replacement request.');
   if (!isReplacement(intent.kind) && !isUuid(intent.globalId)) throw new Error('Invalid global representative request.');
@@ -66,7 +68,7 @@ export default async function handler(req, res) {
         validatePath(blob.pathname, intent.kind);
         if (intent.kind === 'music') {
           if (!intent.issuedId) throw new Error('Missing secure upload identifier.');
-          await query('INSERT INTO music_tracks (id, title, category, genre, concept, target_artist, description, storage_path, content_type, display_order) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) ON CONFLICT (id) DO NOTHING', [intent.issuedId, intent.title, intent.category, intent.genre || null, intent.concept || null, intent.targetArtist || null, intent.description || null, blob.pathname, blob.contentType, intent.displayOrder]);
+          await query('INSERT INTO music_tracks (id, title, slug, category, genre, concept, target_artist, description, storage_path, content_type, display_order) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (id) DO NOTHING', [intent.issuedId, intent.title, intent.slug, intent.category, intent.genre || null, intent.concept || null, intent.targetArtist || null, intent.description || null, blob.pathname, blob.contentType, intent.displayOrder]);
           await logAccess({ actorType: 'ADMIN', actorId: intent.adminUserId, eventType: 'MUSIC_UPLOADED', resourceType: 'MUSIC', resourceId: blob.pathname });
           return;
         }
@@ -94,6 +96,7 @@ export default async function handler(req, res) {
     });
     return json(res, 200, result);
   } catch (error) {
+    if (error.code === '23505') return json(res, 409, { error: 'That music slug is already in use.' });
     return json(res, error.code === 'CONFIGURATION_REQUIRED' ? 503 : 400, { error: error.message || 'Unable to authorize private upload.' });
   }
 }
