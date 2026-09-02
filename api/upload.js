@@ -14,6 +14,35 @@ const cleanText = (value, maximum = 500) => String(value || '').trim().slice(0, 
 const isMusic = (kind) => kind === 'music' || kind === 'music-replace';
 const isPdf = (kind) => kind === 'global-pdf' || kind === 'global-pdf-replace';
 const isReplacement = (kind) => kind.endsWith('-replace');
+// Do not derive this from a request Host header. Blob must only call back to this
+// production route after a private client upload has completed.
+const productionUploadCallbackUrl = 'https://www.nsenter.co.kr/api/upload';
+
+function diagnosticText(value) {
+  if (value === undefined || value === null) return null;
+  let text;
+  try { text = typeof value === 'string' ? value : JSON.stringify(value); } catch { text = '[unserializable response]'; }
+  return String(text)
+    .replace(/(blob1_[a-z0-9_-]+|vercel_blob(?:_client)?_[a-z0-9_.-]+|bearer\s+)[a-z0-9_.-]+/gi, '$1[REDACTED]')
+    .replace(/([?&](?:token|authorization|secret|api[_-]?key)=)[^&\s]+/gi, '$1[REDACTED]')
+    .slice(0, 2000);
+}
+
+function uploadFailureDiagnostic(error, eventType) {
+  const response = error?.response;
+  const responseBody = response?.data ?? response?.body ?? error?.body ?? error?.cause?.response?.data ?? error?.cause?.response?.body;
+  const status = [error?.status, error?.statusCode, response?.status, error?.cause?.status, error?.cause?.response?.status]
+    .map(Number)
+    .find((value) => Number.isInteger(value) && value >= 100 && value <= 599) || null;
+  return {
+    event_type: eventType || 'unknown',
+    name: diagnosticText(error?.name),
+    code: diagnosticText(error?.code),
+    http_status: status,
+    message: diagnosticText(error?.message),
+    vercel_response_body: diagnosticText(responseBody)
+  };
+}
 
 function readIntent(payload) {
   let intent;
@@ -51,6 +80,7 @@ export default async function handler(req, res) {
     const result = await handleUpload({
       body,
       request: req,
+      token: process.env.BLOB_READ_WRITE_TOKEN,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         const intent = readIntent(clientPayload);
         validatePath(pathname, intent.kind);
@@ -61,7 +91,7 @@ export default async function handler(req, res) {
           if (!existing[0]) throw new Error('Requested private file owner was not found.');
         }
         const allowedContentTypes = isMusic(intent.kind) ? audioTypes : isPdf(intent.kind) ? ['application/pdf'] : imageTypes;
-        return { allowedContentTypes, maximumSizeInBytes: isMusic(intent.kind) ? config.maxAudioBytes : config.maxPdfBytes, addRandomSuffix: true, validUntil: Date.now() + (15 * 60 * 1000), tokenPayload: JSON.stringify({ ...intent, adminUserId: administrator.admin_user_id, issuedId: id() }) };
+        return { allowedContentTypes, maximumSizeInBytes: isMusic(intent.kind) ? config.maxAudioBytes : config.maxPdfBytes, addRandomSuffix: true, validUntil: Date.now() + (15 * 60 * 1000), callbackUrl: productionUploadCallbackUrl, tokenPayload: JSON.stringify({ ...intent, adminUserId: administrator.admin_user_id, issuedId: id() }) };
       },
       onUploadCompleted: async ({ blob, tokenPayload }) => {
         const intent = readIntent(tokenPayload);
@@ -97,6 +127,9 @@ export default async function handler(req, res) {
     return json(res, 200, result);
   } catch (error) {
     if (error.code === '23505') return json(res, 409, { error: 'That music slug is already in use.' });
-    return json(res, error.code === 'CONFIGURATION_REQUIRED' ? 503 : 400, { error: error.message || 'Unable to authorize private upload.' });
+    const diagnostic = uploadFailureDiagnostic(error, req.body?.type);
+    console.error('NOVA_BLOB_UPLOAD_FAILURE', JSON.stringify(diagnostic));
+    const status = error.code === 'CONFIGURATION_REQUIRED' ? 503 : diagnostic.http_status || 400;
+    return json(res, status, { error: error.code === 'CONFIGURATION_REQUIRED' ? 'Private storage is not configured.' : 'Unable to authorize private upload. The failure has been logged.' });
   }
 }

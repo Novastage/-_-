@@ -11,7 +11,14 @@ function syncAccessTypeForm() { const reusable = $('#access-type')?.value === 'V
 
 async function uploadPrivateFile(file, prefix, intent, noticeId) {
   if (!file) throw new Error('Choose a file first.');
-  return upload(`${prefix}${crypto.randomUUID()}-${safeFilename(file.name)}`, file, { access:'private', contentType:mimeFor(file), handleUploadUrl:'/api/upload', clientPayload:JSON.stringify(intent), multipart:file.size > 100 * 1024 * 1024, onUploadProgress:({ percentage }) => notice(noticeId, `Uploading securely… ${Math.round(percentage)}%`) });
+  try {
+    return await upload(`${prefix}${crypto.randomUUID()}-${safeFilename(file.name)}`, file, { access:'private', contentType:mimeFor(file), handleUploadUrl:'/api/upload', clientPayload:JSON.stringify(intent), multipart:file.size > 100 * 1024 * 1024, onUploadProgress:({ percentage }) => notice(noticeId, `Uploading securely… ${Math.round(percentage)}%`) });
+  } catch (error) {
+    // Preserve enough context in the administrator's browser console to correlate
+    // with the redacted server diagnostic, without exposing token material in the UI.
+    console.error('NOVA_BLOB_CLIENT_UPLOAD_FAILURE', { status: error?.status || error?.response?.status || null, message: error?.message || 'Unknown client upload failure', response: error?.response?.body || error?.response?.data || null });
+    throw new Error('Private upload authorization failed. Please try again; if it persists, contact the site administrator.');
+  }
 }
 async function refresh() {
   const [codes, music, global] = await Promise.all([request('/api/admin/codes'), request('/api/admin/music'), request('/api/admin/global')]);
