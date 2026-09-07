@@ -3,13 +3,16 @@ function integer(name, fallback, minimum = 1) {
   return Number.isFinite(value) && value >= minimum ? value : fallback;
 }
 
+const minimumPdfUploadBytes = 50 * 1024 * 1024;
+
 export const config = {
   investorSessionSeconds: integer('INVESTOR_SESSION_DURATION_SECONDS', 7200),
   adminSessionSeconds: integer('ADMIN_SESSION_DURATION_SECONDS', 28800),
   rateLimitAttempts: integer('LOGIN_RATE_LIMIT_MAX_ATTEMPTS', 8),
   rateLimitWindowSeconds: integer('LOGIN_RATE_LIMIT_WINDOW_SECONDS', 900),
   maxAudioBytes: integer('MAX_AUDIO_UPLOAD_BYTES', 1073741824),
-  maxPdfBytes: integer('MAX_PDF_UPLOAD_BYTES', 209715200)
+  // A stale lower environment value must not prevent a normal investor profile PDF.
+  maxPdfBytes: Math.max(integer('MAX_PDF_UPLOAD_BYTES', minimumPdfUploadBytes), minimumPdfUploadBytes)
 };
 
 export function requireEnvironment(...names) {

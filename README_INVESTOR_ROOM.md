@@ -15,7 +15,8 @@ Set these in the existing Vercel project's **Production** environment. Do not pu
 - `ADMIN_SESSION_DURATION_SECONDS` — optional; default `28800`
 - `LOGIN_RATE_LIMIT_MAX_ATTEMPTS` — optional; default `8`
 - `LOGIN_RATE_LIMIT_WINDOW_SECONDS` — optional; default `900`
-- `MAX_AUDIO_UPLOAD_BYTES` and `MAX_PDF_UPLOAD_BYTES` — optional; default `4194304`
+- `MAX_AUDIO_UPLOAD_BYTES` — optional
+- `MAX_PDF_UPLOAD_BYTES` — optional; default and minimum `52428800` (50 MiB)
 
 For a local migration, set the same values in a local `.env` file (ignored by Git) and load it through your shell or Vercel CLI. `INITIAL_ADMIN_PASSWORD` is only used locally by the account-creation command and must never be committed.
 

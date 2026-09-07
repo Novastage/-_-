@@ -44,6 +44,22 @@ function uploadFailureDiagnostic(error, eventType) {
   };
 }
 
+function uploadMetadata(intent) {
+  const suppliedSize = Number(intent?.uploadSizeBytes);
+  return {
+    mime_type: cleanText(intent?.uploadMimeType, 100).toLowerCase() || null,
+    file_size_bytes: Number.isSafeInteger(suppliedSize) && suppliedSize >= 0 ? suppliedSize : null
+  };
+}
+
+function clientUploadMetadata(intent) {
+  const suppliedSize = Number(intent?.uploadSizeBytes);
+  return {
+    uploadMimeType: cleanText(intent?.uploadMimeType, 100).toLowerCase() || null,
+    uploadSizeBytes: Number.isSafeInteger(suppliedSize) && suppliedSize >= 0 ? suppliedSize : null
+  };
+}
+
 function readIntent(payload) {
   let intent;
   try { intent = JSON.parse(payload || '{}'); } catch { throw new Error('Invalid upload request.'); }
@@ -54,11 +70,11 @@ function readIntent(payload) {
     const category = cleanText(intent.category, 16).toUpperCase();
     const slug = normalizeTrackSlug(intent.slug, { required: !isReplacement(intent.kind) });
     if (!isReplacement(intent.kind) && (!title || !['MALE', 'FEMALE'].includes(category))) throw new Error('Music title and category are required.');
-    return { kind: intent.kind, targetId: intent.targetId || null, issuedId: isUuid(intent.issuedId) ? intent.issuedId : null, title, slug, category, genre: cleanText(intent.genre, 80), concept: cleanText(intent.concept, 160), targetArtist: cleanText(intent.targetArtist, 160), description: cleanText(intent.description, 1200), displayOrder: Number.parseInt(intent.displayOrder, 10) || 0, adminUserId: isUuid(intent.adminUserId) ? intent.adminUserId : null };
+    return { kind: intent.kind, targetId: intent.targetId || null, issuedId: isUuid(intent.issuedId) ? intent.issuedId : null, title, slug, category, genre: cleanText(intent.genre, 80), concept: cleanText(intent.concept, 160), targetArtist: cleanText(intent.targetArtist, 160), description: cleanText(intent.description, 1200), displayOrder: Number.parseInt(intent.displayOrder, 10) || 0, adminUserId: isUuid(intent.adminUserId) ? intent.adminUserId : null, ...clientUploadMetadata(intent) };
   }
   if (isReplacement(intent.kind) && !isUuid(intent.targetId)) throw new Error('Invalid global file replacement request.');
   if (!isReplacement(intent.kind) && !isUuid(intent.globalId)) throw new Error('Invalid global representative request.');
-  return { kind: intent.kind, targetId: intent.targetId || null, issuedId: isUuid(intent.issuedId) ? intent.issuedId : null, globalId: intent.globalId || null, country: cleanText(intent.country, 100), name: cleanText(intent.name, 160), position: cleanText(intent.position, 160), role: cleanText(intent.role, 160), shortBio: cleanText(intent.shortBio, 1200), displayOrder: Number.parseInt(intent.displayOrder, 10) || 0, adminUserId: isUuid(intent.adminUserId) ? intent.adminUserId : null };
+  return { kind: intent.kind, targetId: intent.targetId || null, issuedId: isUuid(intent.issuedId) ? intent.issuedId : null, globalId: intent.globalId || null, country: cleanText(intent.country, 100), name: cleanText(intent.name, 160), position: cleanText(intent.position, 160), role: cleanText(intent.role, 160), shortBio: cleanText(intent.shortBio, 1200), displayOrder: Number.parseInt(intent.displayOrder, 10) || 0, adminUserId: isUuid(intent.adminUserId) ? intent.adminUserId : null, ...clientUploadMetadata(intent) };
 }
 
 function validatePath(pathname, kind) {
@@ -68,6 +84,7 @@ function validatePath(pathname, kind) {
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return methodNotAllowed(res, ['POST']);
+  let rejectedUpload = null;
   try {
     requireEnvironment('DATABASE_URL', 'BLOB_READ_WRITE_TOKEN');
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
@@ -83,6 +100,7 @@ export default async function handler(req, res) {
       token: process.env.BLOB_READ_WRITE_TOKEN,
       onBeforeGenerateToken: async (pathname, clientPayload) => {
         const intent = readIntent(clientPayload);
+        rejectedUpload = { kind: intent.kind, ...uploadMetadata(intent) };
         validatePath(pathname, intent.kind);
         if (!isReplacement(intent.kind) && !isMusic(intent.kind) && !intent.country) throw new Error('Country is required.');
         if (isReplacement(intent.kind)) {
@@ -128,7 +146,7 @@ export default async function handler(req, res) {
   } catch (error) {
     if (error.code === '23505') return json(res, 409, { error: 'That music slug is already in use.' });
     const diagnostic = uploadFailureDiagnostic(error, req.body?.type);
-    console.error('NOVA_BLOB_UPLOAD_FAILURE', JSON.stringify(diagnostic));
+    console.error('NOVA_BLOB_UPLOAD_FAILURE', JSON.stringify({ ...diagnostic, rejection_reason: diagnostic.code || diagnostic.message || 'CLIENT_UPLOAD_REJECTED', upload: rejectedUpload }));
     const status = error.code === 'CONFIGURATION_REQUIRED' ? 503 : diagnostic.http_status || 400;
     return json(res, status, { error: error.code === 'CONFIGURATION_REQUIRED' ? 'Private storage is not configured.' : 'Unable to authorize private upload. The failure has been logged.' });
   }
