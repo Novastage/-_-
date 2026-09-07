@@ -9,6 +9,14 @@ function notice(selector, message, ok = false) { const node = $(selector); node.
 function date(value) { return value ? new Date(value).toLocaleString('ko-KR') : '—'; }
 function syncAccessTypeForm() { const reusable = $('#access-type')?.value === 'VALID_UNTIL'; const expiry = $('#expires-at'); if (!expiry) return; expiry.required = reusable; $('#expiry-label').textContent = reusable ? '(required)' : '(optional)'; $('#expiry-help').textContent = reusable ? 'VALID UNTIL DATE requires a future expiry date and supports re-login until then.' : 'ONE-TIME access can optionally have an expiry date.'; }
 
+function reportClientUploadFailure(kind, mimeType, fileSizeBytes, error) {
+  const status = Number(error?.status || error?.response?.status);
+  const payload = { type:'nova.blob-client-upload-failure', kind, mimeType, fileSizeBytes, status:Number.isInteger(status) ? status : null, rejectionReason:String(error?.message || error?.code || 'DIRECT_UPLOAD_FAILED').slice(0, 1000) };
+  // This is an admin-authenticated, same-origin diagnostic only. It never sends
+  // a filename, client token, Blob URL, or file content to the application.
+  void fetch('/api/upload', { method:'POST', credentials:'same-origin', keepalive:true, headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) }).catch(() => {});
+}
+
 async function uploadPrivateFile(file, prefix, intent, noticeId) {
   if (!file) throw new Error('Choose a file first.');
   const mimeType = mimeFor(file);
@@ -19,7 +27,9 @@ async function uploadPrivateFile(file, prefix, intent, noticeId) {
   } catch (error) {
     // Preserve enough context in the administrator's browser console to correlate
     // with the redacted server diagnostic, without exposing token material in the UI.
-    console.error('NOVA_BLOB_CLIENT_UPLOAD_FAILURE', { kind:intent.kind, mime_type:mimeType, file_size_bytes:uploadSizeBytes, rejection_reason:error?.code || error?.message || 'CLIENT_UPLOAD_REJECTED', status: error?.status || error?.response?.status || null, response: error?.response?.body || error?.response?.data || null });
+    const rejectionReason = error?.code || error?.message || 'CLIENT_UPLOAD_REJECTED';
+    console.error('NOVA_BLOB_CLIENT_UPLOAD_FAILURE', { kind:intent.kind, mime_type:mimeType, file_size_bytes:uploadSizeBytes, rejection_reason:rejectionReason, status: error?.status || error?.response?.status || null, response: error?.response?.body || error?.response?.data || null });
+    reportClientUploadFailure(intent.kind, mimeType, uploadSizeBytes, error);
     throw new Error('Private upload authorization failed. Please try again; if it persists, contact the site administrator.');
   }
 }

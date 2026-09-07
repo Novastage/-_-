@@ -14,6 +14,7 @@ const cleanText = (value, maximum = 500) => String(value || '').trim().slice(0, 
 const isMusic = (kind) => kind === 'music' || kind === 'music-replace';
 const isPdf = (kind) => kind === 'global-pdf' || kind === 'global-pdf-replace';
 const isReplacement = (kind) => kind.endsWith('-replace');
+const uploadKinds = ['music', 'music-replace', 'global-pdf', 'global-pdf-replace', 'global-photo', 'global-photo-replace'];
 // Do not derive this from a request Host header. Blob must only call back to this
 // production route after a private client upload has completed.
 const productionUploadCallbackUrl = 'https://www.nsenter.co.kr/api/upload';
@@ -60,10 +61,22 @@ function clientUploadMetadata(intent) {
   };
 }
 
+function clientFailureMetadata(body) {
+  const size = Number(body?.fileSizeBytes);
+  const status = Number(body?.status);
+  return {
+    kind: uploadKinds.includes(body?.kind) ? body.kind : 'unknown',
+    mime_type: cleanText(body?.mimeType, 100).toLowerCase() || null,
+    file_size_bytes: Number.isSafeInteger(size) && size >= 0 ? size : null,
+    http_status: Number.isInteger(status) && status >= 100 && status <= 599 ? status : null,
+    rejection_reason: diagnosticText(body?.rejectionReason) || 'DIRECT_UPLOAD_FAILED'
+  };
+}
+
 function readIntent(payload) {
   let intent;
   try { intent = JSON.parse(payload || '{}'); } catch { throw new Error('Invalid upload request.'); }
-  if (!['music', 'music-replace', 'global-pdf', 'global-pdf-replace', 'global-photo', 'global-photo-replace'].includes(intent.kind)) throw new Error('Unsupported upload type.');
+  if (!uploadKinds.includes(intent.kind)) throw new Error('Unsupported upload type.');
   if (isMusic(intent.kind)) {
     if (isReplacement(intent.kind) && !isUuid(intent.targetId)) throw new Error('Invalid music replacement request.');
     const title = cleanText(intent.title, 160);
@@ -86,8 +99,16 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return methodNotAllowed(res, ['POST']);
   let rejectedUpload = null;
   try {
-    requireEnvironment('DATABASE_URL', 'BLOB_READ_WRITE_TOKEN');
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+    if (body?.type === 'nova.blob-client-upload-failure') {
+      const administrator = await requireAdmin(req, res);
+      if (!administrator) return;
+      const metadata = clientFailureMetadata(body);
+      console.error('NOVA_BLOB_CLIENT_UPLOAD_FAILURE', JSON.stringify(metadata));
+      await logAccess({ actorType: 'ADMIN', actorId: administrator.admin_user_id, eventType: 'BLOB_CLIENT_UPLOAD_FAILED', resourceType: 'PRIVATE_UPLOAD', metadata });
+      return json(res, 202, { ok: true });
+    }
+    requireEnvironment('DATABASE_URL', 'BLOB_READ_WRITE_TOKEN');
     if (body?.type !== 'blob.generate-client-token' && body?.type !== 'blob.upload-completed') return json(res, 400, { error: 'Invalid upload event.' });
     let administrator = null;
     if (body.type === 'blob.generate-client-token') {
