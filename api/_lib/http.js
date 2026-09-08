@@ -18,6 +18,14 @@ export function getClientIp(req) {
   return (Array.isArray(forwarded) ? forwarded[0] : forwarded || '').split(',')[0].trim() || req.socket?.remoteAddress || 'unknown';
 }
 
+// Do not use Vercel's req.query getter here. In the Node runtime it delegates
+// to the deprecated legacy url.parse() implementation. Parsing only req.url
+// with a fixed base also ensures request Host headers cannot influence URLs.
+export function queryParam(req, name) {
+  const requestUrl = typeof req?.url === 'string' ? req.url : '/';
+  return new URL(requestUrl, 'https://request.invalid').searchParams.get(name) || '';
+}
+
 export function setCookie(res, name, value, maxAgeSeconds) {
   res.setHeader('Set-Cookie', `${name}=${encodeURIComponent(value)}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${maxAgeSeconds}`);
 }

@@ -1,7 +1,7 @@
 import { requireAdmin } from '../_lib/auth.js';
 import { removePrivateFile } from '../_lib/blob.js';
 import { logAccess, query } from '../_lib/db.js';
-import { json, methodNotAllowed } from '../_lib/http.js';
+import { json, methodNotAllowed, queryParam } from '../_lib/http.js';
 
 export default async function handler(req, res) {
   try {
@@ -11,7 +11,7 @@ export default async function handler(req, res) {
       const representatives = await query('SELECT id, country, name, position, role, short_bio, display_order, is_active, profile_pdf_path IS NOT NULL AS has_profile_pdf, profile_photo_path IS NOT NULL AS has_profile_photo FROM global_representatives ORDER BY display_order, country');
       return json(res, 200, { representatives });
     }
-    const representativeId = String(req.query?.id || '');
+    const representativeId = String(queryParam(req, 'id'));
     if (!representativeId) return json(res, 400, { error: 'Representative id is required.' });
     if (req.method === 'PATCH') {
       const body = req.body || {};

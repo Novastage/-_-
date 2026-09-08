@@ -1,7 +1,7 @@
 import { requireAdmin } from '../_lib/auth.js';
 import { createAccessCode, hmac, id } from '../_lib/crypto.js';
 import { logAccess, query } from '../_lib/db.js';
-import { badRequest, json, methodNotAllowed } from '../_lib/http.js';
+import { badRequest, json, methodNotAllowed, queryParam } from '../_lib/http.js';
 
 export default async function handler(req, res) {
   try {
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
       return json(res, 500, { error: 'Unable to create a unique access code.' });
     }
     if (req.method !== 'PATCH') return methodNotAllowed(res, ['GET', 'POST', 'PATCH']);
-    const codeId = String(req.query?.id || '');
+    const codeId = String(queryParam(req, 'id'));
     if (req.body?.action !== 'revoke' || req.body?.confirmation !== 'REVOKE' || !codeId) return json(res, 400, { error: 'Explicit revoke confirmation is required.' });
     const updated = await query("UPDATE investor_access_codes SET status = 'REVOKED' WHERE id = $1 AND status IN ('UNUSED', 'ACTIVE_SESSION') AND created_at <= NOW() - INTERVAL '60 seconds' RETURNING id", [codeId]);
     if (!updated[0]) return json(res, 409, { error: 'This access code cannot be revoked yet, has already been used, or was not found.' });

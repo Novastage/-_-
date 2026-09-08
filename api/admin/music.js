@@ -1,7 +1,7 @@
 import { requireAdmin } from '../_lib/auth.js';
 import { removePrivateFile } from '../_lib/blob.js';
 import { logAccess, query } from '../_lib/db.js';
-import { json, methodNotAllowed } from '../_lib/http.js';
+import { json, methodNotAllowed, queryParam } from '../_lib/http.js';
 import { normalizeTrackSlug } from '../_lib/slug.js';
 
 export default async function handler(req, res) {
@@ -12,7 +12,7 @@ export default async function handler(req, res) {
       const tracks = await query('SELECT id, title, slug, category, genre, concept, target_artist, description, content_type, display_order, is_active, created_at FROM music_tracks ORDER BY category, display_order, created_at DESC');
       return json(res, 200, { tracks });
     }
-    const trackId = String(req.query?.id || '');
+    const trackId = String(queryParam(req, 'id'));
     if (!trackId) return json(res, 400, { error: 'Track id is required.' });
     if (req.method === 'PATCH') {
       const body = req.body || {};

@@ -2,7 +2,7 @@ import { adminSession, cookieNames, endAdminSession, endInvestorSession, investo
 import { config, requireEnvironment } from './_lib/config.js';
 import { expiresAt, hmac, id, randomToken, verifyPassword } from './_lib/crypto.js';
 import { logAccess, query } from './_lib/db.js';
-import { badRequest, clearCookie, getClientIp, json, methodNotAllowed, setCookie } from './_lib/http.js';
+import { badRequest, clearCookie, getClientIp, json, methodNotAllowed, queryParam, setCookie } from './_lib/http.js';
 import { checkLoginRateLimit } from './_lib/rate-limit.js';
 
 async function investorLogin(req, res) {
@@ -53,8 +53,8 @@ async function adminLogin(req, res) {
 }
 
 export default async function handler(req, res) {
-  const role = String(req.query?.role || '');
-  const action = String(req.query?.action || '');
+  const role = String(queryParam(req, 'role'));
+  const action = String(queryParam(req, 'action'));
   try {
     if (!['investor', 'admin'].includes(role) || !['login', 'logout', 'session'].includes(action)) return json(res, 404, { error: 'Authentication endpoint not found.' });
     if (action === 'login') {

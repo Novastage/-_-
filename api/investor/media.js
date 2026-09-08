@@ -2,7 +2,7 @@ import { Readable } from 'node:stream';
 import { requireInvestor } from '../_lib/auth.js';
 import { getPrivateFile } from '../_lib/blob.js';
 import { logAccess, query } from '../_lib/db.js';
-import { json, methodNotAllowed, noStore } from '../_lib/http.js';
+import { json, methodNotAllowed, noStore, queryParam } from '../_lib/http.js';
 
 function streamPrivateBlob(res, blob, contentType, contentDisposition) {
   noStore(res);
@@ -16,8 +16,8 @@ export default async function handler(req, res) {
   try {
     const session = await requireInvestor(req, res);
     if (!session) return;
-    const type = String(req.query?.type || '');
-    const resourceId = String(req.query?.id || '');
+    const type = String(queryParam(req, 'type'));
+    const resourceId = String(queryParam(req, 'id'));
     if (!resourceId || !['music', 'profile', 'photo'].includes(type)) return json(res, 404, { error: 'Private media endpoint not found.' });
     if (type === 'music') {
       const track = (await query('SELECT id, storage_path, content_type, title FROM music_tracks WHERE id = $1 AND is_active = TRUE', [resourceId]))[0];

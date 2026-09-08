@@ -1,13 +1,13 @@
 import { requireInvestor } from '../_lib/auth.js';
 import { logAccess, query } from '../_lib/db.js';
-import { json, methodNotAllowed } from '../_lib/http.js';
+import { json, methodNotAllowed, queryParam } from '../_lib/http.js';
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return methodNotAllowed(res, ['GET']);
   try {
     const session = await requireInvestor(req, res);
     if (!session) return;
-    const type = String(req.query?.type || '');
+    const type = String(queryParam(req, 'type'));
     if (type === 'overview') {
       const [music] = await query('SELECT COUNT(*)::int AS count FROM music_tracks WHERE is_active = TRUE');
       const [global] = await query('SELECT COUNT(*)::int AS count FROM global_representatives WHERE is_active = TRUE');
