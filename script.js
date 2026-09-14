@@ -14,49 +14,79 @@ if (menuToggle && siteNav) {
 }
 
 // ======================================================
-// NOVA RED LINE MAIN NAV BUTTON
-// 가운데 영역: PROJECTS 뒤 / GLOBAL 앞
+// NOVA RED LINE ENTRY BUTTON
+// CONTACT 오른쪽 / 모바일에서는 CONTACT 아래
 // ======================================================
 if (siteNav && !siteNav.querySelector('.redline-nav-button')) {
   const redlineButton = document.createElement('a');
   redlineButton.href = '/redline/';
-  redlineButton.textContent = 'NOVA RED LINE';
+  redlineButton.innerHTML = '<span>NOVA RED LINE</span><small>ONLINE MASTERING</small>';
   redlineButton.className = 'redline-nav-button';
   redlineButton.setAttribute('aria-label', 'Open NOVA RED LINE Online Mastering');
 
-  const globalLink = siteNav.querySelector('a[href="#global"]');
-  if (globalLink) siteNav.insertBefore(redlineButton, globalLink);
+  const contactLink = siteNav.querySelector('a[href="#contact"]');
+  if (contactLink) contactLink.insertAdjacentElement('afterend', redlineButton);
   else siteNav.appendChild(redlineButton);
 
   const redlineStyle = document.createElement('style');
   redlineStyle.textContent = `
     .site-nav .redline-nav-button {
       display: inline-flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 10px 15px;
-      border-radius: 999px;
+      min-width: 206px;
+      min-height: 48px;
+      padding: 8px 22px;
+      margin-left: 6px;
+      border-radius: 9px;
       background: linear-gradient(180deg,#ff313a 0%,#d90f17 100%);
-      border: 1px solid rgba(255,95,104,.52);
+      border: 1px solid rgba(255,95,104,.55);
       color: #fff !important;
-      font-weight: 700;
-      letter-spacing: .05em;
-      box-shadow: 0 8px 26px rgba(226,19,28,.24);
+      font-weight: 800;
+      line-height: 1.05;
+      box-shadow: 0 9px 28px rgba(226,19,28,.28);
       transition: transform .2s ease,filter .2s ease,box-shadow .2s ease;
+    }
+    .site-nav .redline-nav-button span {
+      font-size: 12px;
+      letter-spacing: .08em;
+    }
+    .site-nav .redline-nav-button small {
+      margin-top: 4px;
+      font-size: 7px;
+      font-weight: 600;
+      letter-spacing: .18em;
+      color: rgba(255,255,255,.72);
     }
     .site-nav .redline-nav-button:hover {
       transform: translateY(-2px);
       filter: brightness(1.08);
-      box-shadow: 0 12px 34px rgba(226,19,28,.34);
+      box-shadow: 0 13px 36px rgba(226,19,28,.38);
     }
     .site-nav .redline-nav-button::after { display:none !important; }
+
+    @media screen and (max-width: 1250px) and (min-width: 769px) {
+      .site-nav { gap: 22px; }
+      .site-nav .redline-nav-button {
+        min-width: 176px;
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+    }
+
     @media screen and (max-width:768px) {
       .site-nav .redline-nav-button {
-        margin:8px 0;
-        padding:12px 14px !important;
-        text-align:center !important;
-        border-bottom:0 !important;
+        width: 100% !important;
+        min-width: 0;
+        min-height: 52px;
+        margin: 12px 0 4px !important;
+        padding: 10px 14px !important;
+        text-align: center !important;
+        border-bottom: 0 !important;
       }
+      .site-nav .redline-nav-button span { font-size: 12px; }
+      .site-nav .redline-nav-button small { font-size: 7px; }
     }
   `;
   document.head.appendChild(redlineStyle);
