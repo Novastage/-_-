@@ -418,3 +418,79 @@ projectCards.forEach(
 
   }
 );
+
+
+// ======================================================
+// NOVA RED LINE PRODUCT ENTRY
+// ======================================================
+
+(function mountRedLineStorefrontEntry() {
+  if (!document.body || document.querySelector('.redline-home-section')) return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    .redline-nav-link{color:#ff6a78!important;font-weight:700!important}
+    .redline-home-section{position:relative;z-index:2;padding:92px 0;min-height:auto!important}
+    .redline-home-card{position:relative;overflow:hidden;display:grid;grid-template-columns:1.05fr .95fr;gap:46px;align-items:center;padding:46px;border:1px solid rgba(255,72,86,.24);border-radius:28px;background:radial-gradient(circle at 82% 20%,rgba(255,39,57,.18),transparent 34%),linear-gradient(140deg,rgba(25,8,14,.86),rgba(5,10,18,.92));box-shadow:0 28px 80px rgba(0,0,0,.38)}
+    .redline-home-kicker{margin:0 0 10px;color:#ff6a78;font-size:12px;font-weight:800;letter-spacing:.22em}
+    .redline-home-card h2{margin:0 0 18px;font-size:clamp(38px,4.5vw,64px);line-height:.98;letter-spacing:-.04em}
+    .redline-home-card h2 span{color:#ff2b40}
+    .redline-home-card p{max-width:680px}
+    .redline-home-buttons{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+    .redline-home-buy{background:linear-gradient(90deg,#ff3348,#c6001b)!important;color:#fff!important;box-shadow:0 12px 36px rgba(255,36,56,.24)!important}
+    .redline-home-visual{min-height:300px;border:1px solid rgba(255,255,255,.08);border-radius:20px;background:#0b0c10;padding:18px;box-shadow:inset 0 0 80px rgba(255,36,56,.05)}
+    .redline-ui-head{height:40px;border:1px solid rgba(255,255,255,.08);border-radius:9px;background:#15171c;display:flex;align-items:center;justify-content:space-between;padding:0 12px;color:#aeb2bb;font-size:10px}
+    .redline-ui-head b{color:#fff}.redline-ui-head b span{color:#ff3045}
+    .redline-ui-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:9px}.redline-ui-box{min-height:82px;border:1px solid rgba(255,255,255,.08);border-radius:8px;background:#121419;padding:11px}.redline-ui-box.wide{grid-column:1/-1}.redline-ui-label{color:#8d929c;font-size:9px;letter-spacing:.1em}.redline-ui-meter{height:5px;background:#2c2e34;border-radius:99px;margin-top:13px;overflow:hidden}.redline-ui-meter i{display:block;height:100%;background:linear-gradient(90deg,#850d1c,#ff3045)}
+    @media(max-width:980px){.redline-home-card{grid-template-columns:1fr}.redline-home-section{padding:64px 0}}
+    @media(max-width:640px){.redline-home-card{padding:26px}.redline-home-visual{min-height:250px}}
+  `;
+  document.head.appendChild(style);
+
+  if (siteNav) {
+    const navLink = document.createElement('a');
+    navLink.href = '/redline/';
+    navLink.className = 'redline-nav-link';
+    navLink.textContent = 'RED LINE';
+    siteNav.insertBefore(navLink, siteNav.querySelector('a[href="#investor"]') || null);
+  }
+
+  const heroButtons = document.querySelector('.hero-buttons');
+  if (heroButtons) {
+    const productButton = document.createElement('a');
+    productButton.href = '/redline/';
+    productButton.className = 'btn btn-secondary';
+    productButton.textContent = 'NOVA RED LINE';
+    heroButtons.appendChild(productButton);
+  }
+
+  const investorSection = document.getElementById('investor');
+  const redlineSection = document.createElement('section');
+  redlineSection.className = 'section redline-home-section show';
+  redlineSection.id = 'redline-product';
+  redlineSection.innerHTML = `
+    <div class="container">
+      <div class="redline-home-card">
+        <div>
+          <p class="redline-home-kicker">NOVA STAGE SOFTWARE · PROFESSIONAL AUDIO</p>
+          <h2>NOVA <span>RED LINE</span><br>MASTERING WORKSTATION</h2>
+          <p>One-click Auto Mastering, expert EQ and dynamics, Reference Assist, LUFS / True Peak monitoring and professional delivery in one Windows workstation.</p>
+          <div class="redline-home-buttons">
+            <a class="btn redline-home-buy" href="/redline/">PRODUCT DETAILS</a>
+            <a class="btn btn-secondary" href="/redline/professional/">BUY PROFESSIONAL</a>
+          </div>
+        </div>
+        <div class="redline-home-visual" aria-label="NOVA RED LINE software preview">
+          <div class="redline-ui-head"><b>NOVA <span>RED LINE</span></b><span>V3.8.0 PROFESSIONAL</span></div>
+          <div class="redline-ui-grid">
+            <div class="redline-ui-box"><div class="redline-ui-label">AUTO MASTER</div><div class="redline-ui-meter"><i style="width:86%"></i></div><div class="redline-ui-meter"><i style="width:64%"></i></div></div>
+            <div class="redline-ui-box"><div class="redline-ui-label">LUFS / TRUE PEAK</div><div class="redline-ui-meter"><i style="width:72%"></i></div><div class="redline-ui-meter"><i style="width:58%"></i></div></div>
+            <div class="redline-ui-box wide"><div class="redline-ui-label">REFERENCE ASSIST · EXPERT MASTERING · FINAL AUDIT</div><div class="redline-ui-meter"><i style="width:91%"></i></div></div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  if (investorSection?.parentNode) investorSection.parentNode.insertBefore(redlineSection, investorSection);
+  else document.querySelector('main')?.appendChild(redlineSection);
+})();
