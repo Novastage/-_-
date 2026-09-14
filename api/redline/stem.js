@@ -48,7 +48,7 @@ export default async function handler(req, res) {
           version: VERSION,
           input: {
             audio: body.audioUrl,
-            model: six ? 'htdemucs_6s' : 'htdemucs',
+            model: six ? 'htdemucs_6s' : 'htdemucs_ft',
             stem: 'none',
             output_format: 'wav',
             wav_format: 'int24',
