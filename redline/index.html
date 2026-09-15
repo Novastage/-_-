@@ -17,7 +17,7 @@ const boot=document.getElementById('boot');
 let stage='INIT';
 try{
   stage='LOAD PARTS';
-  const ver='20260916g';
+  const ver='20260916h';
   const sources=await Promise.all(Array.from({length:14},async(_,i)=>{
     const name=`part${String(i).padStart(2,'0')}.js`;
     const url=`/redline/page-parts/${name}?v=${ver}-${Date.now()}`;
@@ -66,24 +66,21 @@ try{
 
   const onlineUiPatch=`<script>
   (function(){
-    var hideNames=new Set(['DRUMS','BASS','GUITAR','PIANO']);
-
     function isSubscribed(){
       if(window.NOVA_REDLINE_SUBSCRIBED===true)return true;
       var badge=document.getElementById('onlinePlanBadge');
       var state=document.getElementById('onlineAccessState');
-      var text=((badge&&badge.textContent)||'')+' '+((state&&state.textContent)||'');
-      text=text.toUpperCase();
+      var text=(((badge&&badge.textContent)||'')+' '+((state&&state.textContent)||'')).toUpperCase();
       if(text.indexOf('FREE')>=0)return false;
       return /SUBSCRIBED|PAID|PREMIUM|ACTIVE/.test(text);
     }
 
-    function singleAudioCard(el){
-      var n=el;
-      for(var i=0;i<7&&n;i++,n=n.parentElement){
-        if(n.querySelectorAll&&n.querySelectorAll('audio').length===1)return n;
-      }
-      return null;
+    function ensureStyle(){
+      if(document.getElementById('nova-online-ui-patch'))return;
+      var s=document.createElement('style');
+      s.id='nova-online-ui-patch';
+      s.textContent='.novaTwoStemHidden{display:none!important}.novaGeneratedDownload{display:flex!important;align-items:center;justify-content:center;width:100%;margin-top:8px;min-height:38px;border:1px solid #583039!important;background:linear-gradient(180deg,#202226,#111317)!important;color:#fff!important;font-weight:800!important;cursor:pointer}#novaSubscriptionPopup{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;background:#000b;padding:20px}#novaSubscriptionPopup.show{display:flex}.novaSubDialog{width:min(420px,92vw);border:1px solid #6b2834;border-radius:9px;background:linear-gradient(180deg,#17191d,#090a0c);box-shadow:0 22px 70px #000;padding:24px;text-align:center;color:#fff}.novaSubDialog>b{display:block;color:#ff4c64;font-size:12px;letter-spacing:.13em;margin-bottom:12px}.novaSubDialog>strong{display:block;font-size:20px;margin-bottom:9px}.novaSubDialog>span{display:block;color:#aeb2b9;font-size:13px;margin-bottom:20px}.novaSubDialog>div{display:grid;grid-template-columns:1fr 1fr;gap:10px}.novaSubDialog button,.novaSubDialog a{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:5px;border:1px solid #444;text-decoration:none;color:#fff;background:#17191d;font-weight:700;cursor:pointer}.novaSubDialog a{border-color:#bd243a;background:linear-gradient(#ef334f,#9e1429)}';
+      document.head.appendChild(s);
     }
 
     function ensurePopup(){
@@ -92,15 +89,15 @@ try{
       wrap.id='novaSubscriptionPopup';
       wrap.innerHTML='<div class="novaSubDialog"><b>DOWNLOAD LOCKED</b><strong>정기구독 후 다운로드 가능합니다.</strong><span>무료 모드에서는 결과를 미리듣기로 확인할 수 있습니다.</span><div><button type="button" data-nova-sub-close>확인</button><a href="/redline/subscription/">정기구독 보기</a></div></div>';
       document.body.appendChild(wrap);
-      wrap.addEventListener('click',function(e){
-        if(e.target===wrap||e.target.closest('[data-nova-sub-close]'))wrap.classList.remove('show');
-      });
+      wrap.addEventListener('click',function(e){if(e.target===wrap||e.target.closest('[data-nova-sub-close]'))wrap.classList.remove('show')});
     }
 
-    function showSubscriptionPopup(){
-      ensurePopup();
-      var p=document.getElementById('novaSubscriptionPopup');
-      if(p)p.classList.add('show');
+    function showSubscriptionPopup(){ensurePopup();var p=document.getElementById('novaSubscriptionPopup');if(p)p.classList.add('show')}
+
+    function singleAudioCard(el){
+      var n=el;
+      for(var i=0;i<7&&n;i++,n=n.parentElement){if(n.querySelectorAll&&n.querySelectorAll('audio').length===1)return n}
+      return null;
     }
 
     function isDownloadControl(el){
@@ -113,60 +110,85 @@ try{
       return /DOWNLOAD|다운로드/i.test(text)&&!/정기구독\s*(보기|시작)/.test(text);
     }
 
-    function revealDownloadControl(el){
-      if(!el)return;
-      el.hidden=false;
-      if('disabled' in el)el.disabled=false;
-      el.removeAttribute('disabled');
-      el.removeAttribute('aria-disabled');
-      el.classList.remove('disabled','locked');
-      if(getComputedStyle(el).display==='none'){
-        el.style.setProperty('display',el.tagName==='A'?'block':'inline-flex','important');
+    function makeDownloadClickable(ctrl){
+      if(!ctrl)return;
+      ctrl.hidden=false;
+      if('disabled' in ctrl)ctrl.disabled=false;
+      ctrl.removeAttribute('disabled');
+      ctrl.removeAttribute('aria-disabled');
+      ctrl.dataset.novaPaywallDownload='1';
+      if(/DOWNLOAD\s*LOCKED/i.test((ctrl.textContent||'').trim()))ctrl.textContent='WAV 다운로드';
+      if(getComputedStyle(ctrl).display==='none')ctrl.style.setProperty('display',ctrl.tagName==='A'?'block':'flex','important');
+    }
+
+    function patchStemLayout(){
+      var ws=document.getElementById('stemWorkspace');
+      if(!ws)return;
+
+      var hero=ws.querySelector('.stemHero');
+      if(hero){
+        var h=hero.querySelector('h2');
+        var p=hero.querySelector('p');
+        if(h)h.textContent='VOCAL / MR 분리';
+        if(p)p.textContent='한 곡을 업로드하면 보컬(VOCAL)과 반주(MR / INSTRUMENTAL) 두 트랙으로 깔끔하게 분리합니다.';
       }
-      var p=el.parentElement;
-      for(var i=0;i<2&&p;i++,p=p.parentElement){
-        var c=String(p.className||'').toLowerCase();
-        var pid=String(p.id||'').toLowerCase();
-        if(c.indexOf('download')>=0||pid.indexOf('download')>=0){
-          p.hidden=false;
-          if(getComputedStyle(p).display==='none')p.style.setProperty('display','block','important');
-        }
+
+      var mode=document.getElementById('stemMode');
+      if(mode){
+        mode.innerHTML='<option value="2">VOCAL / MR · CLEAN SEPARATION</option>';
+        mode.value='2';
+        var modeBox=mode.closest('.filebox');
+        if(modeBox)modeBox.style.setProperty('display','none','important');
+      }
+      var src=document.getElementById('stemFile');
+      var srcBox=src&&src.closest('.filebox');
+      if(srcBox)srcBox.style.gridColumn='1 / -1';
+
+      var heading=Array.from(ws.querySelectorAll('h2')).find(function(x){return /STEM PREVIEW/i.test(x.textContent||'')});
+      if(heading)heading.textContent='2. VOCAL / MR PREVIEW';
+
+      ['drums','bass','guitar','piano'].forEach(function(name){
+        var c=ws.querySelector('.stemCard[data-stem="'+name+'"]');
+        if(c)c.classList.add('novaTwoStemHidden');
+      });
+
+      var vocal=ws.querySelector('.stemCard[data-stem="vocals"]');
+      if(vocal){
+        var vh=vocal.querySelector('.stemCardHead strong');
+        var vf=vocal.querySelector('.stemCardHead span');
+        if(vh)vh.textContent='VOCAL';
+        if(vf)vf.textContent='VOCAL.wav';
+      }
+      var mr=ws.querySelector('.stemCard[data-stem="other"]');
+      if(mr){
+        var mh=mr.querySelector('.stemCardHead strong');
+        var mf=mr.querySelector('.stemCardHead span');
+        if(mh)mh.textContent='MR / INSTRUMENTAL';
+        if(mf)mf.textContent='MR.wav';
+      }
+
+      var run=document.getElementById('stemRunBtn');
+      if(run)run.textContent='AI VOCAL / MR 분리 시작';
+
+      ws.querySelectorAll('.stemCard button').forEach(makeDownloadClickable);
+
+      var trial=ws.querySelector('.onlineTrialNotice');
+      if(trial)trial.innerHTML='<b>FREE PREVIEW</b> · VOCAL과 MR은 각각 최대 60초까지 청취할 수 있습니다. 정기구독 후 WAV 다운로드가 열립니다.';
+
+      var access=document.querySelector('.onlineAccessBar');
+      if(access&&!ws.hidden){
+        var b=access.querySelector('b'),span=access.querySelector('span'),state=document.getElementById('onlineAccessState');
+        if(b)b.textContent='ONLINE STEM';
+        if(span)span.textContent='AI VOCAL / MR SEPARATION · WAV 24-bit output';
+        if(state)state.innerHTML='<strong>FREE</strong> · VOCAL / MR 분리 가능 · Preview 60초 · Download Locked';
       }
     }
 
-    function normalizeDownloadLabel(el){
-      if(!el||el.children.length>0&&el.tagName!=='BUTTON')return;
-      var t=(el.textContent||'').trim();
-      if(/DOWNLOAD\s*LOCKED/i.test(t)||/^LOCKED$/i.test(t))el.textContent='WAV 다운로드';
-    }
-
-    function outputLabel(card){
-      var head=card&&card.querySelector('.playerhead strong,strong,h3,h4,label');
-      return ((head&&head.textContent)||'').trim().toUpperCase();
-    }
-
-    function ensureGeneratedOutputButtons(){
-      document.querySelectorAll('section,.card').forEach(function(section){
-        var heading=section.querySelector('h1,h2,h3');
-        var moduleName=((heading&&heading.textContent)||'').toUpperCase();
-        if(!/(STEM|VOCAL|MR|VOICE CLEAN|AI RESTORE)/.test(moduleName))return;
-        section.querySelectorAll('audio').forEach(function(audio){
-          var card=audio.closest('.playerbox')||singleAudioCard(audio)||audio.parentElement;
-          if(!card)return;
-          var label=outputLabel(card);
-          if(/SOURCE|ORIGINAL|REFERENCE|INPUT/.test(label))return;
-          if(card.querySelector('[data-nova-generated-download],a[download],button[id*=download i],button[class*=download i],button')){
-            var existing=Array.from(card.querySelectorAll('button,a')).find(isDownloadControl);
-            if(existing){existing.dataset.novaPaywallDownload='1';revealDownloadControl(existing);normalizeDownloadLabel(existing);return;}
-          }
-          var btn=document.createElement('button');
-          btn.type='button';
-          btn.className='novaGeneratedDownload';
-          btn.dataset.novaGeneratedDownload='1';
-          btn.dataset.novaPaywallDownload='1';
-          btn.textContent='WAV 다운로드';
-          card.appendChild(btn);
-        });
+    function patchDownloads(){
+      document.querySelectorAll('button,a').forEach(function(ctrl){
+        if(!isDownloadControl(ctrl))return;
+        if(ctrl.closest&&ctrl.closest('.onlineBigAction'))return;
+        makeDownloadClickable(ctrl);
       });
     }
 
@@ -179,107 +201,170 @@ try{
       var filename='NOVA_REDLINE_OUTPUT.wav';
       if(label.indexOf('VOCAL')>=0&&label.indexOf('MR')<0)filename='VOCAL.wav';
       else if(label.indexOf('MR')>=0||label.indexOf('INSTRUMENTAL')>=0)filename='MR.wav';
-      var a=document.createElement('a');
-      a.href=src;
-      a.download=filename;
-      a.rel='noopener';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      return true;
+      var a=document.createElement('a');a.href=src;a.download=filename;a.rel='noopener';document.body.appendChild(a);a.click();a.remove();return true;
     }
 
-    function patchOnlineUi(){
-      try{
-        if(!document.getElementById('nova-online-ui-patch')){
-          var s=document.createElement('style');
-          s.id='nova-online-ui-patch';
-          s.textContent='.novaTwoStemHidden{display:none!important}.novaGeneratedDownload{width:100%;margin-top:8px;min-height:38px;border:1px solid #583039!important;background:linear-gradient(180deg,#202226,#111317)!important;color:#fff!important;font-weight:800!important}#novaSubscriptionPopup{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;background:#000b;padding:20px}#novaSubscriptionPopup.show{display:flex}.novaSubDialog{width:min(420px,92vw);border:1px solid #6b2834;border-radius:9px;background:linear-gradient(180deg,#17191d,#090a0c);box-shadow:0 22px 70px #000;padding:24px;text-align:center;color:#fff}.novaSubDialog>b{display:block;color:#ff4c64;font-size:12px;letter-spacing:.13em;margin-bottom:12px}.novaSubDialog>strong{display:block;font-size:20px;margin-bottom:9px}.novaSubDialog>span{display:block;color:#aeb2b9;font-size:13px;margin-bottom:20px}.novaSubDialog>div{display:grid;grid-template-columns:1fr 1fr;gap:10px}.novaSubDialog button,.novaSubDialog a{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:5px;border:1px solid #444;text-decoration:none;color:#fff;background:#17191d;font-weight:700;cursor:pointer}.novaSubDialog a{border-color:#bd243a;background:linear-gradient(#ef334f,#9e1429)}';
-          document.head.appendChild(s);
+    function installStemUploadV2(){
+      if(window.__NOVA_STEM_UPLOAD_V2__)return;
+      var oldRun=document.getElementById('stemRunBtn');
+      var oldCancel=document.getElementById('stemCancelBtn');
+      var fileInput=document.getElementById('stemFile');
+      var statusEl=document.getElementById('stemStatus');
+      var progressEl=document.getElementById('stemProgress');
+      if(!oldRun||!oldCancel||!fileInput||!statusEl||!progressEl)return;
+      window.__NOVA_STEM_UPLOAD_V2__=true;
+
+      var run=oldRun.cloneNode(true);
+      var cancel=oldCancel.cloneNode(true);
+      oldRun.replaceWith(run);
+      oldCancel.replaceWith(cancel);
+      run.id='stemRunBtn';cancel.id='stemCancelBtn';
+      run.textContent='AI VOCAL / MR 분리 시작';
+      cancel.disabled=true;
+
+      var jobId=null,inputUrl=null,currentXhr=null,canceled=false;
+      function setStatus(text,p){statusEl.textContent=text;progressEl.style.width=Math.max(0,Math.min(100,p||0))+'%'}
+      function safeName(name){return String(name||'audio.wav').replace(/[^a-zA-Z0-9._-]/g,'-').slice(-100)}
+      function mb(n){return (n/1024/1024).toFixed(1)}
+
+      async function api(url,options,timeoutMs){
+        var ctl=new AbortController();
+        var timer=setTimeout(function(){ctl.abort()},timeoutMs||20000);
+        try{
+          var opts=Object.assign({},options||{},{signal:ctl.signal});
+          var r=await fetch(url,opts);
+          var d=await r.json().catch(function(){return {}});
+          if(!r.ok)throw new Error(d.error||('Request failed ('+r.status+')'));
+          return d;
+        }finally{clearTimeout(timer)}
+      }
+
+      async function cleanup(){
+        if(!inputUrl)return;
+        var u=inputUrl;inputUrl=null;
+        try{await api('/api/redline/stem-cleanup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:u})},12000)}catch(e){}
+      }
+
+      function resetCards(){
+        ['vocals','other'].forEach(function(name){
+          var c=document.querySelector('.stemCard[data-stem="'+name+'"]');
+          if(!c)return;
+          var a=c.querySelector('audio');
+          if(a){a.pause();a.removeAttribute('src');a.load()}
+          c.classList.remove('ready','unavailable');
+          var b=c.querySelector('button');if(b)makeDownloadClickable(b);
+        });
+      }
+
+      function applyOutput(out){
+        out=out&&typeof out==='object'?out:{};
+        var vocalUrl=out.vocals||out.vocal||out.voice||null;
+        var mrUrl=out.mr||out.no_vocals||out.instrumental||out.accompaniment||out.other||null;
+        [['vocals',vocalUrl],['other',mrUrl]].forEach(function(pair){
+          var c=document.querySelector('.stemCard[data-stem="'+pair[0]+'"]');
+          if(!c)return;
+          var a=c.querySelector('audio');
+          if(pair[1]){a.src=pair[1];c.classList.add('ready');c.classList.remove('unavailable')}
+          else{c.classList.add('unavailable');c.classList.remove('ready')}
+          var b=c.querySelector('button');if(b)makeDownloadClickable(b);
+        });
+        setStatus('COMPLETE · VOCAL / MR 분리가 완료되었습니다. FREE는 60초 Preview입니다.',100);
+      }
+
+      function uploadDirect(file,presign){
+        return new Promise(function(resolve,reject){
+          var xhr=new XMLHttpRequest();currentXhr=xhr;
+          var lastProgress=Date.now();
+          var stall=setInterval(function(){
+            if(Date.now()-lastProgress>45000){clearInterval(stall);try{xhr.abort()}catch(e){};reject(new Error('업로드가 45초 이상 진행되지 않았습니다. 네트워크를 확인한 뒤 다시 시도해 주세요.'))}
+          },5000);
+          xhr.open('PUT',presign.uploadUrl,true);
+          xhr.timeout=240000;
+          xhr.upload.onprogress=function(e){
+            if(!e.lengthComputable)return;
+            lastProgress=Date.now();
+            var pct=Math.max(0,Math.min(100,e.loaded/e.total*100));
+            setStatus('UPLOAD · '+Math.round(pct)+'% · '+mb(e.loaded)+' / '+mb(e.total)+' MB',5+pct*0.25);
+          };
+          xhr.onload=function(){clearInterval(stall);currentXhr=null;if(xhr.status>=200&&xhr.status<300)resolve();else reject(new Error('Blob upload failed ('+xhr.status+')'))};
+          xhr.onerror=function(){clearInterval(stall);currentXhr=null;reject(new Error('업로드 네트워크 오류가 발생했습니다.'))};
+          xhr.ontimeout=function(){clearInterval(stall);currentXhr=null;reject(new Error('업로드 시간이 초과되었습니다.'))};
+          xhr.onabort=function(){clearInterval(stall);currentXhr=null;if(!canceled)reject(new Error('업로드가 중단되었습니다.'))};
+          xhr.send(file);
+        });
+      }
+
+      async function poll(){
+        var attempt=0;
+        while(!canceled&&jobId&&attempt<180){
+          attempt++;
+          await new Promise(function(r){setTimeout(r,2000)});
+          var d=await api('/api/redline/stem?id='+encodeURIComponent(jobId),{},15000);
+          if(d.status==='succeeded'){applyOutput(d.output);jobId=null;run.disabled=false;cancel.disabled=true;await cleanup();return}
+          if(d.status==='failed'||d.status==='canceled')throw new Error(d.error||('STEM '+d.status));
+          var p=Math.min(95,34+attempt*0.8);
+          setStatus('AI VOCAL / MR 처리 중 · '+String(d.status||'processing').toUpperCase()+' · '+Math.round(p)+'%',p);
         }
-        ensurePopup();
+        if(!canceled)throw new Error('STEM 처리 시간이 초과되었습니다.');
+      }
 
-        document.querySelectorAll('select').forEach(function(sel){
-          var text=Array.from(sel.options||[]).map(function(o){return o.textContent||''}).join(' ');
-          if(/4\s*STEM|6\s*STEM/i.test(text)){
-            sel.dataset.novaTwoStem='1';
-            sel.innerHTML='<option value="vocal-mr">VOCAL / MR · CLEAN SEPARATION</option>';
-            sel.value='vocal-mr';
-            sel.disabled=true;
-          }
-        });
+      run.addEventListener('click',async function(){
+        var file=fileInput.files&&fileInput.files[0];
+        if(!file)return alert('음원 파일을 먼저 선택하세요.');
+        if(file.size>80*1024*1024)return alert('STEM 파일은 최대 80MB까지 업로드할 수 있습니다.');
+        canceled=false;run.disabled=true;cancel.disabled=false;resetCards();
+        try{
+          setStatus('UPLOAD 준비 중 · 서울 ICN1 저장소 연결…',3);
+          var pathname='redline/stem-input/'+crypto.randomUUID()+'-'+safeName(file.name);
+          var presign=await api('/api/redline/stem-upload',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'presign',pathname:pathname,size:file.size,contentType:file.type||'application/octet-stream'})},15000);
+          inputUrl=presign.blobUrl;
+          setStatus('UPLOAD 시작 · 0% · 0.0 / '+mb(file.size)+' MB',5);
+          await uploadDirect(file,presign);
+          if(canceled)return;
+          setStatus('UPLOAD COMPLETE · AI 분리 작업 생성 중…',32);
+          var job=await api('/api/redline/stem',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({audioUrl:inputUrl,mode:'2'})},20000);
+          jobId=job.id;
+          await poll();
+        }catch(e){
+          if(!canceled)setStatus('ERROR · '+(e&&e.message?e.message:String(e)),0);
+          run.disabled=false;cancel.disabled=true;jobId=null;await cleanup();
+        }
+      });
 
-        document.querySelectorAll('h1,h2,h3,h4,strong,span,label,div,small,button,option').forEach(function(el){
-          var t=(el.textContent||'').trim();
-          if(!t)return;
-          if(el.children.length===0&&(/4\s*STEM|6\s*STEM/i.test(t)))el.textContent='보컬과 MR을 고음질로 분리합니다.';
-          if((/STEM\s*[-·]\s*음원\s*분리/i.test(t)||t==='STEM · 음원 분리')&&el.children.length===0)el.textContent='VOCAL / MR 분리';
-          if(/AI\s*STEM\s*분리\s*시작/i.test(t)&&el.children.length===0)el.textContent='AI VOCAL / MR 분리 시작';
-          if(t==='VOCALS'&&el.children.length===0)el.textContent='VOCAL';
-          if(t==='OTHER'&&el.children.length===0)el.textContent='MR / INSTRUMENTAL';
-          if(t==='other.wav'&&el.children.length===0)el.textContent='mr.wav';
-          if(hideNames.has(t)){
-            var card=singleAudioCard(el);
-            if(card)card.classList.add('novaTwoStemHidden');
-          }
-        });
-
-        document.querySelectorAll('button,a').forEach(function(ctrl){
-          if(!isDownloadControl(ctrl))return;
-          if(ctrl.closest&&ctrl.closest('.onlineBigAction'))return;
-          ctrl.dataset.novaPaywallDownload='1';
-          revealDownloadControl(ctrl);
-          normalizeDownloadLabel(ctrl);
-        });
-
-        document.querySelectorAll('a[download]').forEach(function(a){
-          var d=(a.getAttribute('download')||'').toLowerCase();
-          if(d.indexOf('other')>=0)a.setAttribute('download','MR.wav');
-          if(d.indexOf('vocals')>=0)a.setAttribute('download','VOCAL.wav');
-        });
-
-        ensureGeneratedOutputButtons();
-      }catch(e){console.warn('NOVA ONLINE UI PATCH',e)}
+      cancel.addEventListener('click',async function(){
+        canceled=true;cancel.disabled=true;
+        if(currentXhr){try{currentXhr.abort()}catch(e){}currentXhr=null}
+        if(jobId){try{await api('/api/redline/stem?id='+encodeURIComponent(jobId),{method:'DELETE'},12000)}catch(e){}}
+        jobId=null;run.disabled=false;setStatus('CANCELED',0);await cleanup();
+      });
     }
+
+    ensureStyle();ensurePopup();patchStemLayout();patchDownloads();installStemUploadV2();
+    setTimeout(function(){patchStemLayout();patchDownloads();installStemUploadV2()},250);
+    setTimeout(function(){patchStemLayout();patchDownloads();installStemUploadV2()},1000);
 
     document.addEventListener('click',function(e){
       var trigger=e.target.closest&&e.target.closest('button,a');
       if(!trigger||!isDownloadControl(trigger))return;
       if(trigger.closest&&trigger.closest('.onlineBigAction'))return;
-
       if(!isSubscribed()){
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
-        showSubscriptionPopup();
-        return;
+        e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showSubscriptionPopup();return;
       }
-
-      if(trigger.dataset.novaGeneratedDownload==='1'||trigger.dataset.novaPaywallDownload==='1'){
-        if(!trigger.matches('a[href]')&&forceDownloadFromCard(trigger)){
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-        }
+      if(trigger.dataset.novaPaywallDownload==='1'&&!trigger.matches('a[href]')){
+        if(forceDownloadFromCard(trigger)){e.preventDefault();e.stopPropagation();e.stopImmediatePropagation()}
       }
     },true);
 
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',patchOnlineUi,{once:true});
-    else patchOnlineUi();
-    setTimeout(patchOnlineUi,250);
-    setTimeout(patchOnlineUi,1000);
-    var startObserver=function(){
-      if(!document.body)return;
-      var queued=false;
-      var mo=new MutationObserver(function(){
-        if(queued)return;
-        queued=true;
-        setTimeout(function(){queued=false;patchOnlineUi()},80);
-      });
-      mo.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['disabled','style','href','download']});
-    };
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startObserver,{once:true});
-    else startObserver();
+    var mo=new MutationObserver(function(mutations){
+      var need=false;
+      for(var i=0;i<mutations.length;i++){
+        var m=mutations[i];
+        if(m.type==='attributes'&&m.target&&isDownloadControl(m.target)){need=true;break}
+        if(m.type==='childList'){need=true;break}
+      }
+      if(need)setTimeout(function(){patchStemLayout();patchDownloads()},0);
+    });
+    if(document.body)mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['disabled']});
   })();
   <\/script>`;
   html=html.replace(/<\/body>/i,onlineUiPatch+'</body>');
