@@ -1,0 +1,16 @@
+import { getRedlineR12Html } from '../../server/redline-page.js';
+
+export default function handler(req, res) {
+  if (req.method !== 'GET') {
+    res.setHeader('Allow', 'GET');
+    return res.status(405).send('Method Not Allowed');
+  }
+  try {
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+    return res.status(200).send(getRedlineR12Html());
+  } catch (error) {
+    console.error('RED LINE R12 page decode failed', error);
+    return res.status(500).send('RED LINE page decode failed');
+  }
+}
