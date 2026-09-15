@@ -3,16 +3,17 @@
   "private": true,
   "type": "module",
   "scripts": {
-        "migrate": "node scripts/migrate.mjs",
-        "verify-schema": "node scripts/verify-schema.mjs",
-        "create-admin": "node scripts/create-admin.mjs",
+    "vercel-build": "node scripts/build-redline-single.mjs",
+    "migrate": "node scripts/migrate.mjs",
+    "verify-schema": "node scripts/verify-schema.mjs",
+    "create-admin": "node scripts/create-admin.mjs",
     "check": "node --check script.js && node --check investor/login.js && node --check investor/app.js && node --check admin/admin.js"
   },
   "dependencies": {
-      "@neondatabase/serverless": "^1.0.2",
-        "@vercel/blob": "^2.4.0"
+    "@neondatabase/serverless": "^1.0.2",
+    "@vercel/blob": "^2.4.0"
   },
   "engines": {
-      "node": "24.x"
+    "node": "24.x"
   }
 }
