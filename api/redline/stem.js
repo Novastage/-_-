@@ -1,4 +1,4 @@
-import { issueSignedToken, presignUrl, del } from '@vercel/blob';
+import { issueSignedToken, presignUrl } from '@vercel/blob';
 import { json, methodNotAllowed, queryParam } from '../_lib/http.js';
 
 const VERSION = '5a7041cc9b82e5a558fea6b3d7b12dea89625e89da33f0447bd727c2d0ab9e77';
@@ -17,41 +17,70 @@ function blobToken() {
   if (!value) { const error = new Error('STEM Blob store is not configured.'); error.code = 'CONFIG'; throw error; }
   return value;
 }
-function blobInfo(value) {
+function validPathname(value) {
+  const pathname = String(value || '').replace(/^\/+/, '');
+  return pathname.startsWith('redline/stem-input/') && !pathname.includes('..') && pathname.length <= 240;
+}
+function extractBlobPath(value) {
   try {
-    const u = new URL(String(value));
-    if (u.protocol !== 'https:' || !u.hostname.endsWith('.blob.vercel-storage.com')) return null;
-    const pathname = decodeURIComponent(u.pathname.replace(/^\/+/, ''));
-    if (!pathname.startsWith('redline/stem-input/') || pathname.includes('..')) return null;
-    return { pathname, bareUrl: `${u.origin}${u.pathname}` };
-  } catch { return null; }
+    const u = new URL(String(value || ''));
+    if (u.protocol !== 'https:') return null;
+    const host = u.hostname.toLowerCase();
+    if (!(host === 'blob.vercel-storage.com' || host.endsWith('.blob.vercel-storage.com'))) return null;
+
+    const candidates = [
+      u.pathname.replace(/^\/+/, ''),
+      u.searchParams.get('pathname'),
+      u.searchParams.get('path')
+    ].filter(Boolean);
+
+    for (const candidate of candidates) {
+      let pathname = String(candidate || '');
+      for (let i = 0; i < 2; i++) {
+        try { pathname = decodeURIComponent(pathname); } catch { break; }
+      }
+      pathname = pathname.replace(/^\/+/, '');
+      if (validPathname(pathname)) return pathname;
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
-function validBlobUrl(value) {
-  return Boolean(blobInfo(value));
-}
-async function signedInputUrl(value) {
-  const info = blobInfo(value);
-  if (!info) throw new Error('Invalid audio upload URL.');
+async function signedInputPath(pathname) {
+  if (!validPathname(pathname)) throw new Error('Invalid audio upload path.');
   const signedToken = await issueSignedToken({
-    pathname: info.pathname,
+    pathname,
     operations: ['get'],
     validUntil: Date.now() + 60 * 60 * 1000,
     token: blobToken()
   });
   const { presignedUrl } = await presignUrl(signedToken, {
     operation: 'get',
-    pathname: info.pathname,
+    pathname,
     access: 'private',
     validUntil: Date.now() + 45 * 60 * 1000,
     useCache: false
   });
   return presignedUrl;
 }
-async function cleanupInput(value) {
-  const info = blobInfo(value);
-  if (!info) return;
+async function cleanupPath(pathname) {
+  if (!validPathname(pathname)) return;
   try {
-    await del(info.bareUrl, { token: blobToken() });
+    const validUntil = Date.now() + 5 * 60 * 1000;
+    const signedToken = await issueSignedToken({
+      pathname,
+      operations: ['delete'],
+      validUntil,
+      token: blobToken()
+    });
+    const { presignedUrl } = await presignUrl(signedToken, {
+      operation: 'delete',
+      pathname,
+      access: 'private',
+      validUntil
+    });
+    await fetch(presignedUrl, { method: 'DELETE' });
   } catch (error) {
     console.warn('REDLINE_STEM_BLOB_CLEANUP_WARNING', error?.message || error);
   }
@@ -97,9 +126,10 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'POST') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-      if (!validBlobUrl(body.audioUrl)) return json(res, 400, { error: 'Invalid audio upload URL.' });
+      const pathname = validPathname(body.audioPath) ? String(body.audioPath).replace(/^\/+/, '') : extractBlobPath(body.audioUrl);
+      if (!pathname) return json(res, 400, { error: 'Invalid audio upload URL.' });
 
-      const audio = await signedInputUrl(body.audioUrl);
+      const audio = await signedInputPath(pathname);
       const prediction = await replicate(API, {
         method: 'POST',
         body: JSON.stringify({
@@ -126,7 +156,8 @@ export default async function handler(req, res) {
       if (!/^[a-z0-9_-]{6,80}$/i.test(id)) return json(res, 400, { error: 'Invalid STEM job id.' });
       const prediction = await replicate(`${API}/${encodeURIComponent(id)}`);
       if (['succeeded','failed','canceled'].includes(prediction.status)) {
-        await cleanupInput(prediction?.input?.audio);
+        const pathname = extractBlobPath(prediction?.input?.audio);
+        if (pathname) await cleanupPath(pathname);
       }
       return json(res, 200, {
         id: prediction.id,
@@ -142,7 +173,8 @@ export default async function handler(req, res) {
       const id = String(queryParam(req, 'id') || '').trim();
       if (!/^[a-z0-9_-]{6,80}$/i.test(id)) return json(res, 400, { error: 'Invalid STEM job id.' });
       const prediction = await replicate(`${API}/${encodeURIComponent(id)}/cancel`, { method: 'POST' });
-      await cleanupInput(prediction?.input?.audio);
+      const pathname = extractBlobPath(prediction?.input?.audio);
+      if (pathname) await cleanupPath(pathname);
       return json(res, 200, { id: prediction.id, status: prediction.status });
     }
 
