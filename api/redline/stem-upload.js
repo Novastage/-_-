@@ -54,6 +54,7 @@ async function createDirectUpload(body) {
   });
 
   return {
+    pathname,
     uploadUrl: presignedUrl,
     blobUrl: bareBlobUrl(presignedUrl),
     contentType: validContentType(body?.contentType),
@@ -68,14 +69,11 @@ export default async function handler(req, res) {
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
 
-    // New RED LINE flow: no external browser SDK. The server issues a short-lived
-    // signed PUT URL and the browser uploads directly to the private ICN1 Blob store.
     if (body?.action === 'presign') {
       const result = await createDirectUpload(body);
       return json(res, 200, result);
     }
 
-    // Backward compatibility for cached R12 clients during deployment transition.
     if (['blob.generate-client-token','blob.upload-completed'].includes(body?.type)) {
       const result = await handleUpload({
         body,
