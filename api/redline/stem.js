@@ -4,7 +4,6 @@ import { json, methodNotAllowed, queryParam } from '../_lib/http.js';
 const VERSION = '5a7041cc9b82e5a558fea6b3d7b12dea89625e89da33f0447bd727c2d0ab9e77';
 const MODEL_VERSION = `ryan5453/demucs:${VERSION}`;
 const API = 'https://api.replicate.com/v1/predictions';
-const HEALTH_AUDIO = 'https://replicate.delivery/pbxt/KqCC8G0RySCjKBQinde7gog9XwsfUR8uF6IyD2h6HPirewAg/Josh%20Woodward%20-%20Are%20You%20Having%20Fun';
 
 function enabled() {
   return String(process.env.REDLINE_STEM_ENABLED || '').toLowerCase() === 'true';
@@ -148,17 +147,6 @@ function predictionInput(audio) {
 export default async function handler(req, res) {
   if (!enabled()) return json(res, 503, { error: 'STEM engine is not enabled yet.' });
   try {
-    if (req.method === 'GET' && String(queryParam(req, 'health') || '') === 'provider') {
-      const prediction = await replicate(API, {
-        method: 'POST',
-        body: JSON.stringify({ version: MODEL_VERSION, input: predictionInput(HEALTH_AUDIO) })
-      });
-      if (prediction?.id) {
-        try { await replicate(`${API}/${encodeURIComponent(prediction.id)}/cancel`, { method: 'POST' }); } catch {}
-      }
-      return json(res, 200, { ok: true, provider: 'replicate', accepted: true, status: prediction?.status || null });
-    }
-
     if (req.method === 'POST') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
       const pathname = validPathname(body.audioPath) ? String(body.audioPath).replace(/^\/+/, '') : extractBlobPath(body.audioUrl);
