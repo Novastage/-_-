@@ -359,12 +359,11 @@ try{
       var need=false;
       for(var i=0;i<mutations.length;i++){
         var m=mutations[i];
-        if(m.type==='attributes'&&m.target&&isDownloadControl(m.target)){need=true;break}
-        if(m.type==='childList'){need=true;break}
+        if(m.type==='attributes'&&m.attributeName==='disabled'&&m.target&&isDownloadControl(m.target)){need=true;break}
       }
-      if(need)setTimeout(function(){patchStemLayout();patchDownloads()},0);
+      if(need)setTimeout(function(){patchDownloads()},0);
     });
-    if(document.body)mo.observe(document.body,{subtree:true,childList:true,attributes:true,attributeFilter:['disabled']});
+    if(document.body)mo.observe(document.body,{subtree:true,attributes:true,attributeFilter:['disabled']});
   })();
   <\/script>`;
   html=html.replace(/<\/body>/i,onlineUiPatch+'</body>');
