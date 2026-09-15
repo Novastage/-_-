@@ -1,0 +1,1 @@
+NOVA RED LINE production redeploy trigger after Vercel environment variables were configured on 2026-09-15.
