@@ -17,7 +17,7 @@ const boot=document.getElementById('boot');
 let stage='INIT';
 try{
   stage='LOAD PARTS';
-  const ver='20260916c';
+  const ver='20260916d';
   const sources=await Promise.all(Array.from({length:14},async(_,i)=>{
     const name=`part${String(i).padStart(2,'0')}.js`;
     const url=`/redline/page-parts/${name}?v=${ver}-${Date.now()}`;
@@ -33,6 +33,13 @@ try{
     return m[1];
   });
   if(chunks.length!==14)throw new Error('payload part count mismatch');
+
+  // Repair three historical payload fragments that were truncated during the original split.
+  if(chunks[6].length===9999) chunks[6]=chunks[6].slice(0,3519)+'p'+chunks[6].slice(3519);
+  if(chunks[7].length===9999) chunks[7]=chunks[7].slice(0,9837)+'/'+chunks[7].slice(9837);
+  if(chunks[9].length===9985) chunks[9]='HyWnwGj/NynMJH1'+chunks[9];
+  for(let i=0;i<13;i++) if(chunks[i].length!==10000) throw new Error(`part${String(i).padStart(2,'0')} length ${chunks[i].length}`);
+  if(chunks[13].length!==8388) throw new Error(`part13 length ${chunks[13].length}`);
 
   stage='BASE64';
   let payload=chunks.join('').replace(/\s+/g,'').replace(/-/g,'+').replace(/_/g,'/').replace(/[^A-Za-z0-9+/=]/g,'');
