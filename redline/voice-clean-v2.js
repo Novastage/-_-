@@ -59,6 +59,46 @@
     setTimeout(patchPreviewText,1200);
   }
 
+  if(!window.__NOVA_REDLINE_FREE_PROCESSING_FIX__){
+    window.__NOVA_REDLINE_FREE_PROCESSING_FIX__=true;
+
+    const clearFalsePaywallFlags=()=>{
+      ['masterBtn','autoMasterAssistBtn','analyzeBtn'].forEach(id=>{
+        const b=$(id);if(!b)return;
+        b.removeAttribute('data-nova-paywall-download');
+        b.removeAttribute('data-nova-paywalldownload');
+        delete b.dataset.novaPaywallDownload;
+        b.disabled=false;
+        b.removeAttribute('disabled');
+        b.removeAttribute('aria-disabled');
+      });
+    };
+
+    const runMasterAction=(btn,mode)=>{
+      clearFalsePaywallFlags();
+      try{
+        if(mode==='MANUAL'&&typeof window.master==='function')return window.master({mode:'MANUAL'});
+        if(mode==='AUTO'&&typeof window.autoMasterAssist==='function')return window.autoMasterAssist();
+        if(typeof btn.onclick==='function')return btn.onclick.call(btn,new MouseEvent('click',{bubbles:false,cancelable:true}));
+      }catch(err){console.error('NOVA MASTER ACTION',err);}
+    };
+
+    window.addEventListener('click',e=>{
+      const t=e.target&&e.target.closest?e.target.closest('#masterBtn,#autoMasterAssistBtn'):null;
+      if(!t)return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      const mode=t.id==='masterBtn'?'MANUAL':'AUTO';
+      Promise.resolve().then(()=>runMasterAction(t,mode));
+    },true);
+
+    clearFalsePaywallFlags();
+    setTimeout(clearFalsePaywallFlags,250);
+    setTimeout(clearFalsePaywallFlags,1000);
+    new MutationObserver(clearFalsePaywallFlags).observe(document.body,{subtree:true,attributes:true,attributeFilter:['disabled','data-nova-paywall-download','data-nova-paywalldownload']});
+  }
+
   const ws=$('voiceWorkspace'),file=$('voiceFile'),oldRun=$('voiceRunBtn');
   const orig=$('voiceOriginal'),clean=$('voiceClean');
   if(!ws||!file||!oldRun||!orig||!clean||window.__NOVA_VOICE_CLEAN_ENHANCED_V2__)return;
