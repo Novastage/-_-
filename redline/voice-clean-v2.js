@@ -50,8 +50,6 @@
     }
   }
 
-  // Window capture runs before the document-level subscription gate.
-  // While this control says "마스터링" it is a processing action, never a download action.
   window.addEventListener('click',e=>{
     const raw=e.target;
     const btn=raw&&raw.closest?raw.closest('#downloadBtn'):null;
@@ -96,7 +94,11 @@
   }
   install();setTimeout(install,100);setTimeout(install,500);setTimeout(install,1200);
 
-  const s=document.createElement('script');
-  s.src='/redline/voice-clean-core-v2.js?v=20260916-master-button-fix-3';
-  document.head.appendChild(s);
+  const voice=document.createElement('script');
+  voice.src='/redline/voice-clean-core-v2.js?v=20260916-master-button-fix-3';
+  document.head.appendChild(voice);
+
+  const restore=document.createElement('script');
+  restore.src='/redline/ai-restore-v2.js?v=20260916-restore-v2-1';
+  document.head.appendChild(restore);
 })();
