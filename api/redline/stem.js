@@ -2,7 +2,9 @@ import { issueSignedToken, presignUrl } from '@vercel/blob';
 import { json, methodNotAllowed, queryParam } from '../_lib/http.js';
 
 const VERSION = '5a7041cc9b82e5a558fea6b3d7b12dea89625e89da33f0447bd727c2d0ab9e77';
+const MODEL_VERSION = `ryan5453/demucs:${VERSION}`;
 const API = 'https://api.replicate.com/v1/predictions';
+const HEALTH_AUDIO = 'https://replicate.delivery/pbxt/KqCC8G0RySCjKBQinde7gog9XwsfUR8uF6IyD2h6HPirewAg/Josh%20Woodward%20-%20Are%20You%20Having%20Fun';
 
 function enabled() {
   return String(process.env.REDLINE_STEM_ENABLED || '').toLowerCase() === 'true';
@@ -59,8 +61,7 @@ async function signedInputPath(pathname) {
     operation: 'get',
     pathname,
     access: 'private',
-    validUntil: Date.now() + 45 * 60 * 1000,
-    useCache: false
+    validUntil: Date.now() + 45 * 60 * 1000
   });
   return presignedUrl;
 }
@@ -111,19 +112,53 @@ function normalizeOutput(output) {
   }
   return raw;
 }
+function providerDetail(data, status) {
+  const raw = data?.detail || data?.error || data?.message || `Provider error ${status}`;
+  return typeof raw === 'string' ? raw.slice(0, 500) : JSON.stringify(raw).slice(0, 500);
+}
 async function replicate(url, options = {}) {
   const response = await fetch(url, {
     ...options,
     headers: { 'Authorization': `Bearer ${token()}`, 'Content-Type': 'application/json', ...(options.headers || {}) }
   });
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data?.detail || data?.error || `Provider error ${response.status}`);
+  if (!response.ok) {
+    const error = new Error(providerDetail(data, response.status));
+    error.code = 'PROVIDER';
+    error.status = response.status;
+    throw error;
+  }
   return data;
+}
+function predictionInput(audio) {
+  return {
+    audio,
+    model: 'htdemucs',
+    stem: 'vocals',
+    output_format: 'wav',
+    wav_format: 'int24',
+    clip_mode: 'rescale',
+    shifts: 1,
+    overlap: 0.25,
+    split: true,
+    jobs: 0
+  };
 }
 
 export default async function handler(req, res) {
   if (!enabled()) return json(res, 503, { error: 'STEM engine is not enabled yet.' });
   try {
+    if (req.method === 'GET' && String(queryParam(req, 'health') || '') === 'provider') {
+      const prediction = await replicate(API, {
+        method: 'POST',
+        body: JSON.stringify({ version: MODEL_VERSION, input: predictionInput(HEALTH_AUDIO) })
+      });
+      if (prediction?.id) {
+        try { await replicate(`${API}/${encodeURIComponent(prediction.id)}/cancel`, { method: 'POST' }); } catch {}
+      }
+      return json(res, 200, { ok: true, provider: 'replicate', accepted: true, status: prediction?.status || null });
+    }
+
     if (req.method === 'POST') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
       const pathname = validPathname(body.audioPath) ? String(body.audioPath).replace(/^\/+/, '') : extractBlobPath(body.audioUrl);
@@ -132,21 +167,7 @@ export default async function handler(req, res) {
       const audio = await signedInputPath(pathname);
       const prediction = await replicate(API, {
         method: 'POST',
-        body: JSON.stringify({
-          version: VERSION,
-          input: {
-            audio,
-            model: 'htdemucs',
-            stem: 'vocals',
-            output_format: 'wav',
-            wav_format: 'int24',
-            clip_mode: 'rescale',
-            shifts: 1,
-            overlap: 0.25,
-            split: true,
-            jobs: 0
-          }
-        })
+        body: JSON.stringify({ version: MODEL_VERSION, input: predictionInput(audio) })
       });
       return json(res, 202, { id: prediction.id, status: prediction.status, mode: 'vocal-mr' });
     }
@@ -181,8 +202,8 @@ export default async function handler(req, res) {
     return methodNotAllowed(res, ['GET','POST','DELETE']);
   } catch (error) {
     console.error('REDLINE_STEM_API_ERROR', error?.message || error);
-    return json(res, error?.code === 'CONFIG' ? 503 : 502, {
-      error: error?.code === 'CONFIG' ? error.message : 'STEM processing failed.'
-    });
+    if (error?.code === 'CONFIG') return json(res, 503, { error: error.message });
+    if (error?.code === 'PROVIDER') return json(res, 502, { error: `Replicate ${error.status}: ${error.message}` });
+    return json(res, 502, { error: `STEM processing failed: ${String(error?.message || 'unknown error').slice(0, 300)}` });
   }
 }
