@@ -1,3 +1,4 @@
+import { issueSignedToken, presignUrl, del } from '@vercel/blob';
 import { json, methodNotAllowed, queryParam } from '../_lib/http.js';
 
 const VERSION = '5a7041cc9b82e5a558fea6b3d7b12dea89625e89da33f0447bd727c2d0ab9e77';
@@ -11,11 +12,49 @@ function token() {
   if (!value) { const error = new Error('STEM provider is not configured.'); error.code = 'CONFIG'; throw error; }
   return value;
 }
-function validBlobUrl(value) {
+function blobToken() {
+  const value = String(process.env.REDLINE_STEM_READ_WRITE_TOKEN || process.env.BLOB_READ_WRITE_TOKEN || '').trim();
+  if (!value) { const error = new Error('STEM Blob store is not configured.'); error.code = 'CONFIG'; throw error; }
+  return value;
+}
+function blobInfo(value) {
   try {
     const u = new URL(String(value));
-    return u.protocol === 'https:' && u.hostname.endsWith('.blob.vercel-storage.com') && u.pathname.includes('redline');
-  } catch { return false; }
+    if (u.protocol !== 'https:' || !u.hostname.endsWith('.blob.vercel-storage.com')) return null;
+    const pathname = decodeURIComponent(u.pathname.replace(/^\/+/, ''));
+    if (!pathname.startsWith('redline/stem-input/') || pathname.includes('..')) return null;
+    return { pathname, bareUrl: `${u.origin}${u.pathname}` };
+  } catch { return null; }
+}
+function validBlobUrl(value) {
+  return Boolean(blobInfo(value));
+}
+async function signedInputUrl(value) {
+  const info = blobInfo(value);
+  if (!info) throw new Error('Invalid audio upload URL.');
+  const signedToken = await issueSignedToken({
+    pathname: info.pathname,
+    operations: ['get'],
+    validUntil: Date.now() + 60 * 60 * 1000,
+    token: blobToken()
+  });
+  const { presignedUrl } = await presignUrl(signedToken, {
+    operation: 'get',
+    pathname: info.pathname,
+    access: 'private',
+    validUntil: Date.now() + 45 * 60 * 1000,
+    useCache: false
+  });
+  return presignedUrl;
+}
+async function cleanupInput(value) {
+  const info = blobInfo(value);
+  if (!info) return;
+  try {
+    await del(info.bareUrl, { token: blobToken() });
+  } catch (error) {
+    console.warn('REDLINE_STEM_BLOB_CLEANUP_WARNING', error?.message || error);
+  }
 }
 function normalizeOutput(output) {
   if (!output) return null;
@@ -42,12 +81,13 @@ export default async function handler(req, res) {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
       if (!validBlobUrl(body.audioUrl)) return json(res, 400, { error: 'Invalid audio upload URL.' });
       const six = body.mode !== '4';
+      const audio = await signedInputUrl(body.audioUrl);
       const prediction = await replicate(API, {
         method: 'POST',
         body: JSON.stringify({
           version: VERSION,
           input: {
-            audio: body.audioUrl,
+            audio,
             model: six ? 'htdemucs_6s' : 'htdemucs_ft',
             stem: 'none',
             output_format: 'wav',
@@ -66,6 +106,9 @@ export default async function handler(req, res) {
       const id = String(queryParam(req, 'id') || '').trim();
       if (!/^[a-z0-9_-]{6,80}$/i.test(id)) return json(res, 400, { error: 'Invalid STEM job id.' });
       const prediction = await replicate(`${API}/${encodeURIComponent(id)}`);
+      if (['succeeded','failed','canceled'].includes(prediction.status)) {
+        await cleanupInput(prediction?.input?.audio);
+      }
       return json(res, 200, {
         id: prediction.id,
         status: prediction.status,
@@ -78,6 +121,7 @@ export default async function handler(req, res) {
       const id = String(queryParam(req, 'id') || '').trim();
       if (!/^[a-z0-9_-]{6,80}$/i.test(id)) return json(res, 400, { error: 'Invalid STEM job id.' });
       const prediction = await replicate(`${API}/${encodeURIComponent(id)}/cancel`, { method: 'POST' });
+      await cleanupInput(prediction?.input?.audio);
       return json(res, 200, { id: prediction.id, status: prediction.status });
     }
     return methodNotAllowed(res, ['GET','POST','DELETE']);
