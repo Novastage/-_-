@@ -7,6 +7,7 @@ const AUDIO_TYPES = [
 ];
 const MAX_BYTES = 80 * 1024 * 1024;
 const CALLBACK_URL = 'https://www.nsenter.co.kr/api/redline/stem-upload';
+// RED LINE STEM Blob is provisioned in the Seoul (ICN1) region.
 
 function enabled() {
   return String(process.env.REDLINE_STEM_ENABLED || '').toLowerCase() === 'true';
