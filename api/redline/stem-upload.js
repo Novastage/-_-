@@ -26,11 +26,8 @@ function validContentType(value) {
   const type = String(value || 'application/octet-stream').toLowerCase();
   return AUDIO_TYPES.includes(type) ? type : 'application/octet-stream';
 }
-function bareBlobUrl(presignedUrl) {
-  const u = new URL(presignedUrl);
-  u.search = '';
-  u.hash = '';
-  return u.toString();
+function locatorUrl(pathname) {
+  return `https://blob.vercel-storage.com/${String(pathname || '').replace(/^\/+/, '')}`;
 }
 
 async function createDirectUpload(body) {
@@ -56,7 +53,7 @@ async function createDirectUpload(body) {
   return {
     pathname,
     uploadUrl: presignedUrl,
-    blobUrl: bareBlobUrl(presignedUrl),
+    blobUrl: locatorUrl(pathname),
     contentType: validContentType(body?.contentType),
     expiresAt: validUntil
   };
