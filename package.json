@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "vercel-build": "node scripts/build-redline-single.mjs",
     "migrate": "node scripts/migrate.mjs",
     "verify-schema": "node scripts/verify-schema.mjs",
     "create-admin": "node scripts/create-admin.mjs",
