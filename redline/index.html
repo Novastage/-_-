@@ -6,7 +6,7 @@
 <title>NOVA RED LINE · Online Mastering</title>
 <style>
 html,body{margin:0;min-height:100%;background:#070707;color:#fff;font-family:Segoe UI,Arial,sans-serif}
-#boot{min-height:100vh;display:grid;place-items:center;color:#aaa;font-size:13px;letter-spacing:.08em}
+#boot{min-height:100vh;display:grid;place-items:center;color:#aaa;font-size:13px;letter-spacing:.08em;text-align:center;padding:24px}
 </style>
 </head>
 <body>
@@ -14,12 +14,17 @@ html,body{margin:0;min-height:100%;background:#070707;color:#fff;font-family:Seg
 <script type="module">
 const boot=document.getElementById('boot');
 try{
-  const mods=await Promise.all(Array.from({length:14},(_,i)=>import(`/redline/page-parts/part${String(i).padStart(2,'0')}.js?v=20260915`)));
-  const payload=mods.map(m=>m.default).join('');
-  const bytes=Uint8Array.from(atob(payload),c=>c.charCodeAt(0));
+  const mods=await Promise.all(Array.from({length:14},(_,i)=>import(`/redline/page-parts/part${String(i).padStart(2,'0')}.js?v=20260915b`)));
+  let payload=mods.map(m=>String(m.default||'')).join('');
+  payload=payload.replace(/\s+/g,'').replace(/-/g,'+').replace(/_/g,'/').replace(/[^A-Za-z0-9+/=]/g,'');
+  payload=payload.replace(/=/g,'');
+  payload += '='.repeat((4-(payload.length%4))%4);
+  const bin=atob(payload);
+  const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
   if(!('DecompressionStream' in window)) throw new Error('이 브라우저는 압축 해제를 지원하지 않습니다. 최신 Chrome 또는 Edge를 사용해 주세요.');
   const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
   const html=await new Response(stream).text();
+  if(!html || !html.includes('<html')) throw new Error('RED LINE 화면 데이터 검증에 실패했습니다.');
   document.open();document.write(html);document.close();
 }catch(err){
   boot.textContent='RED LINE 로딩 오류 · '+(err?.message||String(err));
