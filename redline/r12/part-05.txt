@@ -1,0 +1,124 @@
+:#220b0e;border:1px solid #722934;color:#ff4c5e;font:900 22px Consolas}.onlineModal h3{margin:0 0 9px;font-size:16px;letter-spacing:.08em}.onlineModal p{margin:0;color:#c8c8cc;font-size:13px;line-height:1.65}.onlineModal button{margin-top:18px;min-width:140px;background:linear-gradient(135deg,#ff3434,#b60000);border:1px solid #ff6268}
+</style><link href="/app-icon.ico" rel="icon" type="image/x-icon"/><link href="/app-icon.png" rel="icon" sizes="256x256" type="image/png"/><link href="/manifest.webmanifest" rel="manifest"/><meta content="#09090a" name="theme-color"/><meta content="NOVA RED LINE MASTER" name="application-name"/><style>
+/* NOVA RED LINE ONLINE REDUCED MASTER UI */
+/* R11: Professional speaker + L/R peak meter restored for desktop */
+.app{max-width:1160px!important;margin:16px auto 48px!important}
+.onlineModuleNav{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin:0 0 12px;padding:7px;border:1px solid #2e3036;border-radius:13px;background:#0b0c0f}
+.onlineModuleTab{min-height:38px;border:1px solid transparent!important;border-radius:9px!important;background:#121419!important;color:#8b919b!important;font:900 9px Consolas!important;letter-spacing:.04em;padding:8px!important}
+.onlineModuleTab.active{background:linear-gradient(180deg,#fa3144,#bd0d22)!important;color:#fff!important;border-color:#ff5266!important;box-shadow:0 7px 18px rgba(230,28,54,.19)}
+.onlineModuleTab.pending{opacity:.46!important;cursor:not-allowed!important}
+/* Keep only the online MASTER surface requested by the product design. */
+.moduleProject,.moduleQuick,.moduleEQ,.moduleSpatial{display:none!important}
+.moduleExpert .expertHead{display:none!important}
+.moduleExpert .expertPanel{display:none!important}
+.moduleExpert .expertPanel.onlineFxPanel{display:block!important;width:100%!important;max-width:none!important}
+.moduleExpert .expertGrid{display:block!important}
+.moduleExpert .expertBody{opacity:1!important;filter:none!important;width:100%!important;max-width:none!important;margin:0!important}
+.moduleExpert{padding:14px!important;overflow:visible!important}
+.onlineFxPanel .fxKnobGrid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:10px!important}
+.onlineFxPanel .fxKnobBox{min-height:150px!important;padding:10px 8px!important}
+.onlineFxPanel .rotaryKnob{width:72px!important;height:72px!important}
+.onlineFxHelp{margin:0 0 12px;padding:10px 12px;border:1px solid #4a2a30;border-radius:10px;background:#130b0d;color:#c7a8ac;font:800 9px/1.5 Consolas}
+.onlineHiddenControl{display:none!important}
+.moduleRender>.row{margin-top:10px}
+.moduleRender #analyzeBtn{background:#17191d;border:1px solid #3d4047;color:#d8dbe0}
+.moduleRender .autoAssistBox{border-color:#6a2934}
+.moduleExport{margin-bottom:14px}
+@media(max-width:900px){.onlineModuleNav{grid-template-columns:1fr 1fr}.onlineFxPanel .fxKnobGrid{grid-template-columns:1fr 1fr!important}.onlineFxPanel .fxKnobBox:last-child{grid-column:1/-1}.app{padding:0 12px!important}}
+</style><style>
+.onlineLivePreview{margin:0 0 14px;padding:12px;border:1px solid #343840;border-radius:12px;background:#0b0d10}
+.onlineLivePreview audio{display:block;width:100%;margin:9px 0}
+.onlineLiveButtons{display:flex;gap:8px;margin-top:10px}
+.onlineLiveButtons button{flex:1;min-height:36px}
+.moduleCharacter .pills{border-color:#30343b}
+@media(max-width:700px){.onlineLiveButtons{flex-direction:column}}
+</style>
+<style id="online-r3-fixes">
+/* R3: free users can run AUTO MASTER; only preview duration/download are gated. */
+.rackModule:after{display:none!important;content:none!important;background:none!important;width:0!important;height:0!important}
+body.onlineFree .moduleExport .download{display:block!important}
+#downloadBtn{display:block!important;opacity:1!important}
+</style>
+<style>
+/* R4: remove top header vent/perforation decoration */
+header.onlineHeader::before{
+  content:none !important;
+  display:none !important;
+  background:none !important;
+  border:0 !important;
+  box-shadow:none !important;
+}
+</style>
+<style>
+.stemWorkspace[hidden]{display:none!important}.stemHero{display:flex;align-items:center;justify-content:space-between;gap:20px;border-color:#5b2931}.stemEyebrow{font:800 10px Consolas;color:#ff6473;letter-spacing:.08em}.stemHero h2{font-size:24px;margin:5px 0 7px}.stemHero p{margin:0;color:#aaa;font-size:12px;line-height:1.6;max-width:760px}.stemPlan{text-align:right;font:800 10px Consolas;color:#ff8994;border:1px solid #52252b;background:#13090b;border-radius:10px;padding:11px 13px;line-height:1.6}.stemPlan b{color:#ff4a58}.stemSourceGrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.stemRun{min-width:240px}.stemStatus{margin-top:8px;color:#ff8d8d;font:800 11px Consolas}.stemGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stemCard{background:#0b0b0c;border:1px solid #3d3033;border-radius:13px;padding:12px}.stemCard.ready{border-color:#315443;box-shadow:0 0 18px rgba(80,220,140,.05)}.stemCardHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.stemCardHead strong{font-size:12px}.stemCardHead span{font:800 9px Consolas;color:#80858d}.stemCard audio{width:100%;height:34px}.stemCard button{width:100%;margin-top:8px;border:1px solid #3a3032;background:#171416;color:#7e777a;font-size:10px}.stemCard.unavailable{opacity:.42}.stemCard.unavailable audio{pointer-events:none}.onlineModuleTab:not(.pending){cursor:pointer}@media(max-width:850px){.stemSourceGrid{grid-template-columns:1fr}.stemGrid{grid-template-columns:1fr 1fr}.stemHero{align-items:flex-start;flex-direction:column}.stemPlan{text-align:left}}@media(max-width:560px){.stemGrid{grid-template-columns:1fr}}
+</style>
+<style>
+/* R7 · VOICE CLEAN */
+.voiceWorkspace[hidden]{display:none!important}
+.voiceHero{display:flex;align-items:center;justify-content:space-between;gap:20px;border-color:#49313a}
+.voiceEyebrow{font:800 10px Consolas;color:#ff8190;letter-spacing:.08em}
+.voiceHero h2{font-size:24px;margin:5px 0 7px}.voiceHero p{margin:0;color:#aaa;font-size:12px;line-height:1.6;max-width:780px}
+.voicePlan{text-align:right;font:800 10px Consolas;color:#ff9ca7;border:1px solid #503039;background:#140b0e;border-radius:10px;padding:11px 13px;line-height:1.6}.voicePlan b{color:#ff5c6c}
+.voiceSourceGrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.voiceControls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+.voiceControl{background:#0b0b0c;border:1px solid #3c3034;border-radius:12px;padding:12px;text-align:center}.voiceControl strong{display:block;font-size:11px;margin-bottom:4px}.voiceControl .voiceVal{font:900 17px Consolas;color:#ff7381;margin:7px 0}.voiceControl input{width:100%;accent-color:#ef2e45}.voiceControl small{display:block;color:#777;font-size:8px;line-height:1.35;margin-top:5px}
+.voicePlayers{display:grid;grid-template-columns:1fr 1fr;gap:11px}.voicePlayer{background:#0b0b0c;border:1px solid #3c3034;border-radius:12px;padding:12px}.voicePlayerHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.voicePlayerHead strong{font-size:11px}.voicePlayerHead span{font:800 9px Consolas;color:#888}.voicePlayer audio{width:100%}
+.voiceActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.voiceRun{min-width:250px}.voiceStatus{margin-top:8px;color:#ff8d9a;font:800 11px Consolas}.voiceMetrics{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:10px}.voiceMetric{background:#0a0b0c;border:1px solid #333238;border-radius:10px;padding:10px;text-align:center}.voiceMetric span{display:block;color:#787d86;font-size:8px}.voiceMetric b{display:block;font:900 14px Consolas;color:#e6e7ea;margin-top:4px}
+.voiceNote{margin-top:10px;padding:10px 12px;border:1px solid #3b2d31;border-radius:10px;background:#100b0d;color:#9a8e92;font-size:9px;line-height:1.5}.voiceNote b{color:#ff7583}
+@media(max-width:900px){.voiceControls{grid-template-columns:repeat(2,1fr)}.voiceSourceGrid,.voicePlayers{grid-template-columns:1fr}.voiceMetrics{grid-template-columns:1fr 1fr}.voiceHero{align-items:flex-start;flex-direction:column}.voicePlan{text-align:left}}
+@media(max-width:560px){.voiceControls,.voiceMetrics{grid-template-columns:1fr}}
+</style>
+<style>
+/* R8 · AI RESTORE */
+.restoreWorkspace[hidden]{display:none!important}
+.restoreHero{display:flex;align-items:center;justify-content:space-between;gap:20px;border-color:#4a3038}
+.restoreEyebrow{font:800 10px Consolas;color:#ff7f90;letter-spacing:.08em}
+.restoreHero h2{font-size:24px;margin:5px 0 7px}.restoreHero p{margin:0;color:#aaa;font-size:12px;line-height:1.6;max-width:790px}
+.restorePlan{text-align:right;font:800 10px Consolas;color:#ff9aa6;border:1px solid #523038;background:#140b0e;border-radius:10px;padding:11px 13px;line-height:1.6}.restorePlan b{color:#ff596b}
+.restoreSourceGrid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.restoreControls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+.restoreControl{background:#0b0b0c;border:1px solid #3c3034;border-radius:12px;padding:12px;text-align:center}
+.restoreControl strong{display:block;font-size:11px;margin-bottom:4px}.restoreControl .restoreVal{font:900 17px Consolas;color:#ff7381;margin:7px 0}.restoreControl input{width:100%;accent-color:#ef2e45}.restoreControl small{display:block;color:#777;font-size:8px;line-height:1.35;margin-top:5px}
+.restoreActions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.restoreRun{min-width:260px}.restoreStatus{margin-top:8px;color:#ff8d9a;font:800 11px Consolas}
+.restorePlayers{display:grid;grid-template-columns:1fr 1fr;gap:11px}.restorePlayer{background:#0b0b0c;border:1px solid #3c3034;border-radius:12px;padding:12px}.restorePlayerHead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.restorePlayerHead strong{font-size:11px}.restorePlayerHead span{font:800 9px Consolas;color:#888}.restorePlayer audio{width:100%}
+.restoreMetrics{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-top:10px}.restoreMetric{background:#0a0b0c;border:1px solid #333238;border-radius:10px;padding:10px;text-align:center}.restoreMetric span{display:block;color:#787d86;font-size:8px}.restoreMetric b{display:block;font:900 14px Consolas;color:#e6e7ea;margin-top:4px}
+.restoreNote{margin-top:10px;padding:10px 12px;border:1px solid #3b2d31;border-radius:10px;background:#100b0d;color:#9a8e92;font-size:9px;line-height:1.5}.restoreNote b{color:#ff7583}
+@media(max-width:900px){.restoreControls{grid-template-columns:repeat(2,1fr)}.restoreSourceGrid,.restorePlayers{grid-template-columns:1fr}.restoreMetrics{grid-template-columns:repeat(2,1fr)}.restoreHero{align-items:flex-start;flex-direction:column}.restorePlan{text-align:left}}
+@media(max-width:560px){.restoreControls,.restoreMetrics{grid-template-columns:1fr}}
+</style>
+
+<meta content="R11 FINAL4 · SPEAKER / PEAK METER · MASTER / STEM / VOICE CLEAN / AI RESTORE" name="redline-build"/>
+<style id="online-r11-speaker-peak">
+/* R11 · Restore the verified Professional speaker + Peak/RMS meter visual system. */
+@media (min-width: 1740px){
+  .speaker,.peakTower{display:block!important}
+  .app{max-width:1050px!important}
+  .speaker{width:220px!important;height:680px!important;min-height:680px!important}
+  .speaker.left{left:auto!important;right:calc(50% + 621px)!important}
+  .speaker.right{right:auto!important;left:calc(50% + 621px)!important}
+  .peakTower{display:block!important;width:84px!important;height:680px!important;min-height:590px!important}
+  .peakTower.left{left:auto!important;right:calc(50% + 533px)!important}
+  .peakTower.right{right:auto!important;left:calc(50% + 533px)!important}
+}
+@media (min-width:1491px) and (max-width:1739px){
+  .app{max-width:980px!important}
+  .speaker,.peakTower{display:block!important}
+  .speaker{width:175px!important;height:590px!important;min-height:590px!important}
+  .speaker.left{left:auto!important;right:calc(50% + 575px)!important}
+  .speaker.right{right:auto!important;left:calc(50% + 575px)!important}
+  .front{inset:9px!important}
+  .tweeter{width:82px!important;height:82px!important;top:46px!important}
+  .tweeter:after{width:30px!important;height:30px!important}
+  .woofer{width:150px!important;height:150px!important;top:185px!important}
+  .woofer:before{width:58px!important;height:58px!important}
+  .peakTower{width:70px!important;height:590px!important;min-height:590px!important}
+  .peakTower.left{left:auto!important;right:calc(50% + 500px)!important}
+  .peakTower.right{right:auto!important;left:calc(50% + 500px)!important}
+}
+@media (max-width:1490px){.speaker,.peakTower{display:none!important}}
+</style>
+</head><body><div class="speaker left"><div class="front"><div class="tweeter"></div><div class="woofer"></div><div class="led"></div><div class="knob"></div><div class="nova"></div></div></div><div class="speaker right"><div class="front"><div class="tweeter"></div><div class="woofer"></div><div class="led"></div><div class="knob"></div><div class="nova"></div></div></div><div class="peakTower left" id="peakRailL"><div class="channel">L</div><div class="mode" id="peakModeL">READY</div><div class="peakScale"><span class="sp6">+6</span><span class="sp3">+3</span><span class="s0">0</span><span class="s3">-3</span><span class="s6">-6</span><span class="s12">-12</span><span class="s18">-18</span><span class="s24">-24</span><span class="s36">-36</span><span class="s48">-48</span><span class="s60">-60</span></div><div class="peakMeterTrack"><div class="peakZeroLine"></div><div class="peakZeroLabel">0 dBFS</div><div class="peakLane main"><div class="peakMeterFill" id="peakFillL"></div><div class="peakMeterHold" id="peakHoldL"></div></div><div class="peakLane rms"><div class="peakMeterFill rms" id="peakRmsFillL"></div></div></div><div class="peakLaneLabels"><span>PEAK</span><span>RMS</span></div><div class="peakNumber" id="peakDbL">-∞</div><div class="peakHoldNumber" id="peakHoldDbL">HOLD -∞ dBFS</div></div><div class="peakTower right" id="peakRailR"><div class="channel">R</div><div class="mode" id="peakModeR">READY</div><div class="peakScale"><span class="sp6">+6</span><span class="sp3">+3</span><span class="s0">0</span><span class="s3">-3</span><span class="s6">-6</span><span class="s12">-12</span><span class="s18">-18</span><span class="s24">-24</span><span class="s36">-36</span><span class="s48">-48</span><span class="s60">-60</span></div><div class="peakMeterTrack"><div class="peakZeroLine"></div><div class="peakZeroLabel">0 dBFS</div><div class="peakLane main"><div class="peakMeterFill" id="peakFillR"></div><div class="peakMeterHold" id="peakHoldR"></div></div><div class="peakLane rms"><div class="peakMeterFill rms" id="peakRmsFillR"></div></div></div><div class="peakLaneLabels"><span>PEAK</span><span>RMS</span></div><div class="peakNumber" id="peakDbR">-∞</div><div class="peakHoldNumber" id="peakHoldDbR">HOLD -∞ dBFS</div></div><div class="app"><header class="onlineHeader"><div class="onlineBrand"><div class="onlineLogo">N</div><div><h1>NOVA <b>RED LINE</b> <small>ONLINE MASTERING</small></h1><div class="sub">AUTO MASTER · LUFS · GENRE / CHARACTER · LIVE FX</div></div></div><div class="onlineHeaderActions"><span class="trialBadge" id="onlinePlanBadge">FREE · MASTER ENABLED · 60 SEC PREVIEW</span><a class="onlineTopLink" href="./NOVA_RED_LINE_ONLINE_MASTERING_GUIDE.pdf" rel="noopener" target="_blank">사용방법</a><a class="onlineTopLink subscribe" href="/redline/subscription/">정기구독</a><a class="onlineTopLink pro" href="/redline/professional/">PROFESSIONAL 구매</a><a class="onlineTopLink stage" href="/">NOVA STAGE</a></div></header><nav aria-label="NOVA RED LINE Online Modules" class="onlineModuleNav"><button class="onlineModuleTab active" data-online-module="master" type="button">MASTER</button><button class="onlineModuleTab" data-online-module="stem" type="button">STEM</button><button class="onlineModuleTab" data-online-module="voice" type="button">VOICE CLEAN</button><button class="onlineModuleTab" data-online-module="restore" type="button">AI RESTORE</button></nav><div class="onlineAccessBar"><div><b>ONLINE MASTER</b><span>Professional V3.8.0 AUTO / MANUAL MASTER 코어 · 온라인 축소 컨트롤</span></div><div id="onlineAccessState"><strong>FREE</strong> · AUTO / MANUAL MASTER 사용 가능 · Master Preview 60초 · Download Locked</div></div><section class="stemWorkspace" hidden="" id="stemWorkspace">
+<div class="card stemHero"><div><span class="stemEyebrow">NOVA RED LINE · AI STEM SEPARATION</span><h2>STEM · 음원 분리</h2><p>한 곡을 업로드하면 보컬·드럼·베이스·기타·피아노·기타 악기(OTHER)로 분리합니다. 결과는 각각 따로 재생해 확인할 수 있습니다.</p></div><div class="stemPlan">FREE · 60 SEC PREVIEW<br/><b>DOWNLOAD LOCKED</b></div></div>
+<section class="card"><h2>1. STEM SOURCE</h2><div class="stemSourceGrid"><div class="filebox"><label>음원 파일</label><input accept=".wav,.mp3,.flac,.aif,.aiff,.m4a,.aac,.ogg,audio/*" id="stemFile" type="file"/><div class="small" id="stemFileName" style="margin-top:7px">파일을 선택하세요.</div></div><div class="filebox"><label>분리 모드</label><select id="stemMode"><option selected="" value="4">4 STEM · HIGH QUALITY · Vocals / Drums / Bass / Other</option><option value="6">6 STEM · EXTENDED · + Guitar / Piano</option></select><div class="small" style="margin-top:7px">4 STEM은 고품질 모드를 우선 사용합니다. 6 STEM은 Guitar/Piano까지 확장되며 복잡한 믹스에서는 일부 bleed가 생길 수 있습니다.</div></div></div><div class="row" style="margin-top:12px"><button class="primary stemRun" id="stemRunBtn" type="button">AI STEM 분리 시작</button><button class="ghost" disabled="" id="stemCancelBtn" type="button">작업 취소</button></div><div class="progress"><div id="stemProgress"></div></div><div class="stemStatus" id="stemStatus">READY · 음원을 선택하세요.</div></section>
+<section class="card"><h2>2. STEM PREVIEW</h2><div class="stemGrid" id="stemGrid">
+<div class="stemCard" data-stem="vocals"><div class="stemCardHead"><strong>VOCALS</strong><span>vocals.wav</span></div><audio controls="" preload="none"></audio><button disabled="" type="button">DOWNLOAD LOCKED</button></div>
+<div class="stemCard"
