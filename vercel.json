@@ -1,5 +1,4 @@
 {
-  "buildCommand": "node scripts/build-redline-single.mjs",
   "headers": [
     {
       "source": "/investor/(.*)",
