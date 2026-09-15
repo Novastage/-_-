@@ -17,7 +17,7 @@ const boot=document.getElementById('boot');
 let stage='INIT';
 try{
   stage='LOAD PARTS';
-  const ver='20260916d';
+  const ver='20260916e';
   const sources=await Promise.all(Array.from({length:14},async(_,i)=>{
     const name=`part${String(i).padStart(2,'0')}.js`;
     const url=`/redline/page-parts/${name}?v=${ver}-${Date.now()}`;
@@ -64,6 +64,76 @@ try{
 
   stage='VERIFY HTML';
   if(!html||!html.includes('<html')||!html.includes('NOVA RED LINE'))throw new Error('RED LINE 화면 데이터 검증 실패');
+
+  // UI compatibility patch: RED LINE STEM is now intentionally simplified to
+  // two outputs only — VOCAL and MR/INSTRUMENTAL. The underlying R12 page is
+  // left intact and this small patch hides legacy multi-stem controls/cards.
+  const twoStemUiPatch=`<script>
+  (function(){
+    const hideNames=new Set(['DRUMS','BASS','GUITAR','PIANO']);
+    function singleAudioCard(el){
+      let n=el;
+      for(let i=0;i<6&&n;i++,n=n.parentElement){
+        if(n.querySelectorAll&&n.querySelectorAll('audio').length===1)return n;
+      }
+      return null;
+    }
+    function patchStemUi(){
+      try{
+        const styleId='nova-two-stem-style';
+        if(!document.getElementById(styleId)){
+          const s=document.createElement('style');
+          s.id=styleId;
+          s.textContent='.novaTwoStemHidden{display:none!important}';
+          document.head.appendChild(s);
+        }
+
+        document.querySelectorAll('select').forEach(sel=>{
+          const text=Array.from(sel.options||[]).map(o=>o.textContent||'').join(' ');
+          if(/4\s*STEM|6\s*STEM/i.test(text)&&!sel.dataset.novaTwoStem){
+            sel.dataset.novaTwoStem='1';
+            sel.innerHTML='<option value="2">2 STEM · CLEAN VOCAL / MR</option>';
+            sel.value='2';
+            sel.disabled=true;
+          }
+        });
+
+        document.querySelectorAll('h1,h2,h3,h4,strong,span,label,div,small,button').forEach(el=>{
+          const t=(el.textContent||'').trim();
+          if(!t)return;
+          if((/STEM\s*[-·]\s*음원\s*분리/i.test(t)||t==='STEM · 음원 분리')&&el.children.length===0){
+            el.textContent='VOCAL / MR 분리';
+          }
+          if(t==='VOCALS'&&el.children.length===0)el.textContent='VOCAL';
+          if(t==='OTHER'&&el.children.length===0)el.textContent='MR / INSTRUMENTAL';
+          if(t==='other.wav'&&el.children.length===0)el.textContent='mr.wav';
+          if(hideNames.has(t)){
+            const card=singleAudioCard(el);
+            if(card)card.classList.add('novaTwoStemHidden');
+          }
+        });
+
+        document.querySelectorAll('a[download]').forEach(a=>{
+          const d=(a.getAttribute('download')||'').toLowerCase();
+          if(d.includes('other'))a.setAttribute('download','MR.wav');
+          if(d.includes('vocals'))a.setAttribute('download','VOCAL.wav');
+        });
+      }catch(e){console.warn('NOVA 2-STEM UI PATCH',e)}
+    }
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',patchStemUi,{once:true});
+    else patchStemUi();
+    setTimeout(patchStemUi,250);
+    setTimeout(patchStemUi,1000);
+    const startObserver=()=>{
+      if(!document.body)return;
+      const mo=new MutationObserver(()=>patchStemUi());
+      mo.observe(document.body,{subtree:true,childList:true,characterData:true});
+    };
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startObserver,{once:true});
+    else startObserver();
+  })();
+  <\/script>`;
+  html=html.replace(/<\/body>/i,twoStemUiPatch+'</body>');
 
   stage='OPEN';
   document.open();
