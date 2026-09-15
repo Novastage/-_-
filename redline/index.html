@@ -6,30 +6,67 @@
 <title>NOVA RED LINE · Online Mastering</title>
 <style>
 html,body{margin:0;min-height:100%;background:#070707;color:#fff;font-family:Segoe UI,Arial,sans-serif}
-#boot{min-height:100vh;display:grid;place-items:center;color:#aaa;font-size:13px;letter-spacing:.08em;text-align:center;padding:24px}
+#boot{min-height:100vh;display:grid;place-items:center;color:#aaa;font-size:13px;letter-spacing:.08em;text-align:center;padding:24px;line-height:1.7}
 </style>
 </head>
 <body>
 <div id="boot">NOVA RED LINE · LOADING</div>
-<script type="module">
+<script>
+(async()=>{
 const boot=document.getElementById('boot');
+let stage='INIT';
 try{
-  const mods=await Promise.all(Array.from({length:14},(_,i)=>import(`/redline/page-parts/part${String(i).padStart(2,'0')}.js?v=20260915b`)));
-  let payload=mods.map(m=>String(m.default||'')).join('');
-  payload=payload.replace(/\s+/g,'').replace(/-/g,'+').replace(/_/g,'/').replace(/[^A-Za-z0-9+/=]/g,'');
+  stage='LOAD PARTS';
+  const ver='20260916c';
+  const sources=await Promise.all(Array.from({length:14},async(_,i)=>{
+    const name=`part${String(i).padStart(2,'0')}.js`;
+    const url=`/redline/page-parts/${name}?v=${ver}-${Date.now()}`;
+    const r=await fetch(url,{cache:'no-store',credentials:'same-origin'});
+    if(!r.ok)throw new Error(`${name} HTTP ${r.status}`);
+    return {name,text:await r.text()};
+  }));
+
+  stage='VERIFY PARTS';
+  const chunks=sources.map(({name,text})=>{
+    const m=text.match(/^export\s+default\s+['\"]([A-Za-z0-9+/=_-]+)['\"]\s*;?\s*$/s);
+    if(!m)throw new Error(`${name} payload format error`);
+    return m[1];
+  });
+  if(chunks.length!==14)throw new Error('payload part count mismatch');
+
+  stage='BASE64';
+  let payload=chunks.join('').replace(/\s+/g,'').replace(/-/g,'+').replace(/_/g,'/').replace(/[^A-Za-z0-9+/=]/g,'');
   payload=payload.replace(/=/g,'');
-  payload += '='.repeat((4-(payload.length%4))%4);
+  payload+='='.repeat((4-(payload.length%4))%4);
   const bin=atob(payload);
   const bytes=Uint8Array.from(bin,c=>c.charCodeAt(0));
-  if(!('DecompressionStream' in window)) throw new Error('이 브라우저는 압축 해제를 지원하지 않습니다. 최신 Chrome 또는 Edge를 사용해 주세요.');
+  if(bytes.length<3||bytes[0]!==0x1f||bytes[1]!==0x8b)throw new Error('gzip header verification failed');
+
+  stage='GZIP';
+  if(!('DecompressionStream' in window))throw new Error('최신 Chrome 또는 Edge에서 열어 주세요.');
   const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-  const html=await new Response(stream).text();
-  if(!html || !html.includes('<html')) throw new Error('RED LINE 화면 데이터 검증에 실패했습니다.');
-  document.open();document.write(html);document.close();
+  const reader=stream.getReader();
+  const decoder=new TextDecoder('utf-8');
+  let html='';
+  while(true){
+    const {value,done}=await reader.read();
+    if(done)break;
+    html+=decoder.decode(value,{stream:true});
+  }
+  html+=decoder.decode();
+
+  stage='VERIFY HTML';
+  if(!html||!html.includes('<html')||!html.includes('NOVA RED LINE'))throw new Error('RED LINE 화면 데이터 검증 실패');
+
+  stage='OPEN';
+  document.open();
+  document.write(html);
+  document.close();
 }catch(err){
-  boot.textContent='RED LINE 로딩 오류 · '+(err?.message||String(err));
-  console.error(err);
+  boot.textContent=`RED LINE 로딩 오류 · ${stage} · ${err?.message||String(err)}`;
+  console.error('RED LINE LOADER',stage,err);
 }
+})();
 </script>
 </body>
 </html>
