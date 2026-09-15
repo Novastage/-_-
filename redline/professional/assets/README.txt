@@ -1,0 +1,1 @@
+Professional sales page visual assets.
