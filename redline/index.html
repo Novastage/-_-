@@ -11,11 +11,20 @@ html,body{margin:0;min-height:100%;background:#070707;color:#fff;font-family:Seg
 </head>
 <body>
 <div id="boot">NOVA RED LINE · LOADING</div>
-<script>
-fetch('/api/redline/page',{cache:'no-store'})
-  .then(r=>{if(!r.ok) throw new Error('HTTP '+r.status); return r.text()})
-  .then(html=>{document.open();document.write(html);document.close()})
-  .catch(err=>{document.getElementById('boot').textContent='RED LINE 로딩 오류 · '+err.message;console.error(err)})
+<script type="module">
+const boot=document.getElementById('boot');
+try{
+  const mods=await Promise.all(Array.from({length:14},(_,i)=>import(`/redline/page-parts/part${String(i).padStart(2,'0')}.js?v=20260915`)));
+  const payload=mods.map(m=>m.default).join('');
+  const bytes=Uint8Array.from(atob(payload),c=>c.charCodeAt(0));
+  if(!('DecompressionStream' in window)) throw new Error('이 브라우저는 압축 해제를 지원하지 않습니다. 최신 Chrome 또는 Edge를 사용해 주세요.');
+  const stream=new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+  const html=await new Response(stream).text();
+  document.open();document.write(html);document.close();
+}catch(err){
+  boot.textContent='RED LINE 로딩 오류 · '+(err?.message||String(err));
+  console.error(err);
+}
 </script>
 </body>
 </html>
