@@ -17,7 +17,7 @@ const boot=document.getElementById('boot');
 let stage='INIT';
 try{
   stage='LOAD PARTS';
-  const ver='20260916f';
+  const ver='20260916g';
   const sources=await Promise.all(Array.from({length:14},async(_,i)=>{
     const name=`part${String(i).padStart(2,'0')}.js`;
     const url=`/redline/page-parts/${name}?v=${ver}-${Date.now()}`;
@@ -34,7 +34,6 @@ try{
   });
   if(chunks.length!==14)throw new Error('payload part count mismatch');
 
-  // Repair three historical payload fragments that were truncated during the original split.
   if(chunks[6].length===9999) chunks[6]=chunks[6].slice(0,3519)+'p'+chunks[6].slice(3519);
   if(chunks[7].length===9999) chunks[7]=chunks[7].slice(0,9837)+'/'+chunks[7].slice(9837);
   if(chunks[9].length===9985) chunks[9]='HyWnwGj/NynMJH1'+chunks[9];
@@ -65,20 +64,23 @@ try{
   stage='VERIFY HTML';
   if(!html||!html.includes('<html')||!html.includes('NOVA RED LINE'))throw new Error('RED LINE 화면 데이터 검증 실패');
 
-  // RED LINE ONLINE compatibility patch:
-  // 1) STEM is intentionally reduced to VOCAL + MR only.
-  // 2) FREE users can click every download control and get the same subscription popup.
   const onlineUiPatch=`<script>
   (function(){
-    const hideNames=new Set(['DRUMS','BASS','GUITAR','PIANO']);
+    var hideNames=new Set(['DRUMS','BASS','GUITAR','PIANO']);
 
     function isSubscribed(){
-      return window.NOVA_REDLINE_SUBSCRIBED===true;
+      if(window.NOVA_REDLINE_SUBSCRIBED===true)return true;
+      var badge=document.getElementById('onlinePlanBadge');
+      var state=document.getElementById('onlineAccessState');
+      var text=((badge&&badge.textContent)||'')+' '+((state&&state.textContent)||'');
+      text=text.toUpperCase();
+      if(text.indexOf('FREE')>=0)return false;
+      return /SUBSCRIBED|PAID|PREMIUM|ACTIVE/.test(text);
     }
 
     function singleAudioCard(el){
-      let n=el;
-      for(let i=0;i<7&&n;i++,n=n.parentElement){
+      var n=el;
+      for(var i=0;i<7&&n;i++,n=n.parentElement){
         if(n.querySelectorAll&&n.querySelectorAll('audio').length===1)return n;
       }
       return null;
@@ -86,36 +88,98 @@ try{
 
     function ensurePopup(){
       if(document.getElementById('novaSubscriptionPopup'))return;
-      const wrap=document.createElement('div');
+      var wrap=document.createElement('div');
       wrap.id='novaSubscriptionPopup';
-      wrap.innerHTML='<div class="novaSubDialog"><b>DOWNLOAD LOCKED</b><strong>정기구독 후 다운로드 가능합니다.</strong><span>무료 모드에서는 Preview만 제공됩니다.</span><div><button type="button" data-nova-sub-close>확인</button><a href="/redline/subscription/">정기구독 보기</a></div></div>';
+      wrap.innerHTML='<div class="novaSubDialog"><b>DOWNLOAD LOCKED</b><strong>정기구독 후 다운로드 가능합니다.</strong><span>무료 모드에서는 결과를 미리듣기로 확인할 수 있습니다.</span><div><button type="button" data-nova-sub-close>확인</button><a href="/redline/subscription/">정기구독 보기</a></div></div>';
       document.body.appendChild(wrap);
-      wrap.addEventListener('click',e=>{if(e.target===wrap||e.target.closest('[data-nova-sub-close]'))wrap.classList.remove('show')});
+      wrap.addEventListener('click',function(e){
+        if(e.target===wrap||e.target.closest('[data-nova-sub-close]'))wrap.classList.remove('show');
+      });
     }
 
     function showSubscriptionPopup(){
       ensurePopup();
-      document.getElementById('novaSubscriptionPopup')?.classList.add('show');
+      var p=document.getElementById('novaSubscriptionPopup');
+      if(p)p.classList.add('show');
     }
 
     function isDownloadControl(el){
       if(!el)return false;
-      const text=(el.textContent||'').trim();
-      const id=String(el.id||'').toLowerCase();
-      const cls=String(el.className||'').toLowerCase();
-      if(el.matches?.('a[download]'))return true;
-      if(id.includes('download')||cls.split(/\s+/).includes('download'))return true;
+      var text=(el.textContent||'').trim();
+      var id=String(el.id||'').toLowerCase();
+      var cls=String(el.className||'').toLowerCase();
+      if(el.matches&&el.matches('a[download]'))return true;
+      if(id.indexOf('download')>=0||cls.indexOf('download')>=0)return true;
       return /DOWNLOAD|다운로드/i.test(text)&&!/정기구독\s*(보기|시작)/.test(text);
     }
 
+    function revealDownloadControl(el){
+      if(!el)return;
+      el.hidden=false;
+      if('disabled' in el)el.disabled=false;
+      el.removeAttribute('disabled');
+      el.removeAttribute('aria-disabled');
+      el.classList.remove('disabled','locked');
+      if(getComputedStyle(el).display==='none'){
+        el.style.setProperty('display',el.tagName==='A'?'block':'inline-flex','important');
+      }
+      var p=el.parentElement;
+      for(var i=0;i<2&&p;i++,p=p.parentElement){
+        var c=String(p.className||'').toLowerCase();
+        var pid=String(p.id||'').toLowerCase();
+        if(c.indexOf('download')>=0||pid.indexOf('download')>=0){
+          p.hidden=false;
+          if(getComputedStyle(p).display==='none')p.style.setProperty('display','block','important');
+        }
+      }
+    }
+
+    function normalizeDownloadLabel(el){
+      if(!el||el.children.length>0&&el.tagName!=='BUTTON')return;
+      var t=(el.textContent||'').trim();
+      if(/DOWNLOAD\s*LOCKED/i.test(t)||/^LOCKED$/i.test(t))el.textContent='WAV 다운로드';
+    }
+
+    function outputLabel(card){
+      var head=card&&card.querySelector('.playerhead strong,strong,h3,h4,label');
+      return ((head&&head.textContent)||'').trim().toUpperCase();
+    }
+
+    function ensureGeneratedOutputButtons(){
+      document.querySelectorAll('section,.card').forEach(function(section){
+        var heading=section.querySelector('h1,h2,h3');
+        var moduleName=((heading&&heading.textContent)||'').toUpperCase();
+        if(!/(STEM|VOCAL|MR|VOICE CLEAN|AI RESTORE)/.test(moduleName))return;
+        section.querySelectorAll('audio').forEach(function(audio){
+          var card=audio.closest('.playerbox')||singleAudioCard(audio)||audio.parentElement;
+          if(!card)return;
+          var label=outputLabel(card);
+          if(/SOURCE|ORIGINAL|REFERENCE|INPUT/.test(label))return;
+          if(card.querySelector('[data-nova-generated-download],a[download],button[id*=download i],button[class*=download i],button')){
+            var existing=Array.from(card.querySelectorAll('button,a')).find(isDownloadControl);
+            if(existing){existing.dataset.novaPaywallDownload='1';revealDownloadControl(existing);normalizeDownloadLabel(existing);return;}
+          }
+          var btn=document.createElement('button');
+          btn.type='button';
+          btn.className='novaGeneratedDownload';
+          btn.dataset.novaGeneratedDownload='1';
+          btn.dataset.novaPaywallDownload='1';
+          btn.textContent='WAV 다운로드';
+          card.appendChild(btn);
+        });
+      });
+    }
+
     function forceDownloadFromCard(trigger){
-      const card=singleAudioCard(trigger);
-      const audio=card?.querySelector('audio');
-      const src=audio?.currentSrc||audio?.src||'';
+      var card=singleAudioCard(trigger);
+      var audio=card&&card.querySelector('audio');
+      var src=(audio&&(audio.currentSrc||audio.src))||'';
       if(!src)return false;
-      const label=(card.textContent||'').toUpperCase();
-      const filename=label.includes('VOCAL')&&!label.includes('MR')?'VOCAL.wav':'MR.wav';
-      const a=document.createElement('a');
+      var label=(card.textContent||'').toUpperCase();
+      var filename='NOVA_REDLINE_OUTPUT.wav';
+      if(label.indexOf('VOCAL')>=0&&label.indexOf('MR')<0)filename='VOCAL.wav';
+      else if(label.indexOf('MR')>=0||label.indexOf('INSTRUMENTAL')>=0)filename='MR.wav';
+      var a=document.createElement('a');
       a.href=src;
       a.download=filename;
       a.rel='noopener';
@@ -125,30 +189,18 @@ try{
       return true;
     }
 
-    function patchStemUi(){
+    function patchOnlineUi(){
       try{
-        const styleId='nova-online-ui-patch';
-        if(!document.getElementById(styleId)){
-          const s=document.createElement('style');
-          s.id=styleId;
-          s.textContent=`
-            .novaTwoStemHidden{display:none!important}
-            #novaSubscriptionPopup{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;background:#000b;padding:20px}
-            #novaSubscriptionPopup.show{display:flex}
-            .novaSubDialog{width:min(420px,92vw);border:1px solid #6b2834;border-radius:9px;background:linear-gradient(180deg,#17191d,#090a0c);box-shadow:0 22px 70px #000;padding:24px;text-align:center;color:#fff}
-            .novaSubDialog>b{display:block;color:#ff4c64;font-size:12px;letter-spacing:.13em;margin-bottom:12px}
-            .novaSubDialog>strong{display:block;font-size:20px;margin-bottom:9px}
-            .novaSubDialog>span{display:block;color:#aeb2b9;font-size:13px;margin-bottom:20px}
-            .novaSubDialog>div{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-            .novaSubDialog button,.novaSubDialog a{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:5px;border:1px solid #444;text-decoration:none;color:#fff;background:#17191d;font-weight:700;cursor:pointer}
-            .novaSubDialog a{border-color:#bd243a;background:linear-gradient(#ef334f,#9e1429)}
-          `;
+        if(!document.getElementById('nova-online-ui-patch')){
+          var s=document.createElement('style');
+          s.id='nova-online-ui-patch';
+          s.textContent='.novaTwoStemHidden{display:none!important}.novaGeneratedDownload{width:100%;margin-top:8px;min-height:38px;border:1px solid #583039!important;background:linear-gradient(180deg,#202226,#111317)!important;color:#fff!important;font-weight:800!important}#novaSubscriptionPopup{position:fixed;inset:0;z-index:999999;display:none;align-items:center;justify-content:center;background:#000b;padding:20px}#novaSubscriptionPopup.show{display:flex}.novaSubDialog{width:min(420px,92vw);border:1px solid #6b2834;border-radius:9px;background:linear-gradient(180deg,#17191d,#090a0c);box-shadow:0 22px 70px #000;padding:24px;text-align:center;color:#fff}.novaSubDialog>b{display:block;color:#ff4c64;font-size:12px;letter-spacing:.13em;margin-bottom:12px}.novaSubDialog>strong{display:block;font-size:20px;margin-bottom:9px}.novaSubDialog>span{display:block;color:#aeb2b9;font-size:13px;margin-bottom:20px}.novaSubDialog>div{display:grid;grid-template-columns:1fr 1fr;gap:10px}.novaSubDialog button,.novaSubDialog a{display:flex;align-items:center;justify-content:center;min-height:42px;border-radius:5px;border:1px solid #444;text-decoration:none;color:#fff;background:#17191d;font-weight:700;cursor:pointer}.novaSubDialog a{border-color:#bd243a;background:linear-gradient(#ef334f,#9e1429)}';
           document.head.appendChild(s);
         }
         ensurePopup();
 
-        document.querySelectorAll('select').forEach(sel=>{
-          const text=Array.from(sel.options||[]).map(o=>o.textContent||'').join(' ');
+        document.querySelectorAll('select').forEach(function(sel){
+          var text=Array.from(sel.options||[]).map(function(o){return o.textContent||''}).join(' ');
           if(/4\s*STEM|6\s*STEM/i.test(text)){
             sel.dataset.novaTwoStem='1';
             sel.innerHTML='<option value="vocal-mr">VOCAL / MR · CLEAN SEPARATION</option>';
@@ -157,43 +209,43 @@ try{
           }
         });
 
-        document.querySelectorAll('h1,h2,h3,h4,strong,span,label,div,small,button,option').forEach(el=>{
-          const t=(el.textContent||'').trim();
+        document.querySelectorAll('h1,h2,h3,h4,strong,span,label,div,small,button,option').forEach(function(el){
+          var t=(el.textContent||'').trim();
           if(!t)return;
-          if(el.children.length===0&&(/4\s*STEM|6\s*STEM/i.test(t))){
-            el.textContent='보컬과 MR을 고음질로 분리합니다.';
-          }
+          if(el.children.length===0&&(/4\s*STEM|6\s*STEM/i.test(t)))el.textContent='보컬과 MR을 고음질로 분리합니다.';
           if((/STEM\s*[-·]\s*음원\s*분리/i.test(t)||t==='STEM · 음원 분리')&&el.children.length===0)el.textContent='VOCAL / MR 분리';
           if(/AI\s*STEM\s*분리\s*시작/i.test(t)&&el.children.length===0)el.textContent='AI VOCAL / MR 분리 시작';
           if(t==='VOCALS'&&el.children.length===0)el.textContent='VOCAL';
           if(t==='OTHER'&&el.children.length===0)el.textContent='MR / INSTRUMENTAL';
           if(t==='other.wav'&&el.children.length===0)el.textContent='mr.wav';
           if(hideNames.has(t)){
-            const card=singleAudioCard(el);
+            var card=singleAudioCard(el);
             if(card)card.classList.add('novaTwoStemHidden');
           }
         });
 
-        document.querySelectorAll('button').forEach(btn=>{
-          const t=(btn.textContent||'').trim();
-          if(/DOWNLOAD\s*LOCKED/i.test(t)){
-            btn.dataset.novaPaywallDownload='1';
-            btn.disabled=false;
-            btn.textContent='WAV 다운로드';
-          }
+        document.querySelectorAll('button,a').forEach(function(ctrl){
+          if(!isDownloadControl(ctrl))return;
+          if(ctrl.closest&&ctrl.closest('.onlineBigAction'))return;
+          ctrl.dataset.novaPaywallDownload='1';
+          revealDownloadControl(ctrl);
+          normalizeDownloadLabel(ctrl);
         });
 
-        document.querySelectorAll('a[download]').forEach(a=>{
-          const d=(a.getAttribute('download')||'').toLowerCase();
-          if(d.includes('other'))a.setAttribute('download','MR.wav');
-          if(d.includes('vocals'))a.setAttribute('download','VOCAL.wav');
+        document.querySelectorAll('a[download]').forEach(function(a){
+          var d=(a.getAttribute('download')||'').toLowerCase();
+          if(d.indexOf('other')>=0)a.setAttribute('download','MR.wav');
+          if(d.indexOf('vocals')>=0)a.setAttribute('download','VOCAL.wav');
         });
+
+        ensureGeneratedOutputButtons();
       }catch(e){console.warn('NOVA ONLINE UI PATCH',e)}
     }
 
     document.addEventListener('click',function(e){
-      const trigger=e.target.closest?.('button,a');
+      var trigger=e.target.closest&&e.target.closest('button,a');
       if(!trigger||!isDownloadControl(trigger))return;
+      if(trigger.closest&&trigger.closest('.onlineBigAction'))return;
 
       if(!isSubscribed()){
         e.preventDefault();
@@ -203,8 +255,8 @@ try{
         return;
       }
 
-      if(trigger.dataset.novaPaywallDownload==='1'){
-        if(forceDownloadFromCard(trigger)){
+      if(trigger.dataset.novaGeneratedDownload==='1'||trigger.dataset.novaPaywallDownload==='1'){
+        if(!trigger.matches('a[href]')&&forceDownloadFromCard(trigger)){
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
@@ -212,14 +264,19 @@ try{
       }
     },true);
 
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',patchStemUi,{once:true});
-    else patchStemUi();
-    setTimeout(patchStemUi,250);
-    setTimeout(patchStemUi,1000);
-    const startObserver=()=>{
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',patchOnlineUi,{once:true});
+    else patchOnlineUi();
+    setTimeout(patchOnlineUi,250);
+    setTimeout(patchOnlineUi,1000);
+    var startObserver=function(){
       if(!document.body)return;
-      const mo=new MutationObserver(()=>patchStemUi());
-      mo.observe(document.body,{subtree:true,childList:true,characterData:true});
+      var queued=false;
+      var mo=new MutationObserver(function(){
+        if(queued)return;
+        queued=true;
+        setTimeout(function(){queued=false;patchOnlineUi()},80);
+      });
+      mo.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['disabled','style','href','download']});
     };
     if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',startObserver,{once:true});
     else startObserver();
