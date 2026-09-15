@@ -58,11 +58,29 @@ async function cleanupInput(value) {
 }
 function normalizeOutput(output) {
   if (!output) return null;
+
+  let raw = output;
   if (output.stems && Array.isArray(output.stems)) {
-    return Object.fromEntries(output.stems.map((item) => [String(item.name || '').toLowerCase(), item.audio]).filter(([k,v]) => k && v));
+    raw = Object.fromEntries(
+      output.stems
+        .map((item) => [String(item.name || '').toLowerCase(), item.audio])
+        .filter(([k,v]) => k && v)
+    );
   }
-  if (typeof output === 'object' && !Array.isArray(output)) return output;
-  return null;
+  if (typeof raw !== 'object' || Array.isArray(raw)) return null;
+
+  const vocals = raw.vocals || raw.vocal || raw.voice || null;
+  const mr = raw.no_vocals || raw.instrumental || raw.accompaniment || raw.mr || raw.other || null;
+
+  if (vocals || mr) {
+    return {
+      vocals,
+      mr,
+      no_vocals: mr,
+      other: mr
+    };
+  }
+  return raw;
 }
 async function replicate(url, options = {}) {
   const response = await fetch(url, {
@@ -80,7 +98,7 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
       if (!validBlobUrl(body.audioUrl)) return json(res, 400, { error: 'Invalid audio upload URL.' });
-      const six = body.mode !== '4';
+
       const audio = await signedInputUrl(body.audioUrl);
       const prediction = await replicate(API, {
         method: 'POST',
@@ -88,8 +106,8 @@ export default async function handler(req, res) {
           version: VERSION,
           input: {
             audio,
-            model: six ? 'htdemucs_6s' : 'htdemucs_ft',
-            stem: 'none',
+            model: 'htdemucs',
+            stem: 'vocals',
             output_format: 'wav',
             wav_format: 'int24',
             clip_mode: 'rescale',
@@ -100,8 +118,9 @@ export default async function handler(req, res) {
           }
         })
       });
-      return json(res, 202, { id: prediction.id, status: prediction.status });
+      return json(res, 202, { id: prediction.id, status: prediction.status, mode: 'vocal-mr' });
     }
+
     if (req.method === 'GET') {
       const id = String(queryParam(req, 'id') || '').trim();
       if (!/^[a-z0-9_-]{6,80}$/i.test(id)) return json(res, 400, { error: 'Invalid STEM job id.' });
@@ -114,9 +133,11 @@ export default async function handler(req, res) {
         status: prediction.status,
         error: prediction.error || null,
         output: prediction.status === 'succeeded' ? normalizeOutput(prediction.output) : null,
-        metrics: prediction.metrics || null
+        metrics: prediction.metrics || null,
+        mode: 'vocal-mr'
       });
     }
+
     if (req.method === 'DELETE') {
       const id = String(queryParam(req, 'id') || '').trim();
       if (!/^[a-z0-9_-]{6,80}$/i.test(id)) return json(res, 400, { error: 'Invalid STEM job id.' });
@@ -124,9 +145,12 @@ export default async function handler(req, res) {
       await cleanupInput(prediction?.input?.audio);
       return json(res, 200, { id: prediction.id, status: prediction.status });
     }
+
     return methodNotAllowed(res, ['GET','POST','DELETE']);
   } catch (error) {
     console.error('REDLINE_STEM_API_ERROR', error?.message || error);
-    return json(res, error?.code === 'CONFIG' ? 503 : 502, { error: error?.code === 'CONFIG' ? error.message : 'STEM processing failed.' });
+    return json(res, error?.code === 'CONFIG' ? 503 : 502, {
+      error: error?.code === 'CONFIG' ? error.message : 'STEM processing failed.'
+    });
   }
 }
