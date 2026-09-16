@@ -6,12 +6,12 @@ plugins {
 
 android {
     namespace = "com.novastage.novaredline"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.novastage.novaredline"
         minSdk = 26
-        targetSdk = 37
+        targetSdk = 36
         versionCode = 12
         versionName = "1.0.0-simple-core"
 
