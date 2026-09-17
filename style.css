@@ -360,6 +360,38 @@ body .nova-video-hero .hero-video-tags {
   line-height: 1.55;
 }
 
+/* =========================================================
+   FINAL TYPOGRAPHY / LINE-BREAK TUNING
+========================================================= */
+
+.investor-access-box h2 {
+  font-size: 0 !important;
+  line-height: 1 !important;
+  text-align: center !important;
+  text-wrap: initial !important;
+}
+
+.investor-access-box h2::before {
+  content: "PRIVATE\A&\ASECURE AREA";
+  display: block;
+  white-space: pre-line;
+  width: 100%;
+  margin: 0 auto;
+  color: var(--nova-ice);
+  font-family: var(--nova-display);
+  font-size: clamp(40px, 4.7vw, 66px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -.045em;
+  text-align: center;
+  text-shadow: 0 8px 34px rgba(0, 0, 0, .24);
+}
+
+.impact-section .section-description {
+  max-width: none;
+  white-space: nowrap;
+}
+
 @media (max-width: 900px) {
   .section::after {
     width: calc(100% - 40px);
@@ -370,6 +402,14 @@ body .nova-video-hero .hero-video-tags {
   .investor-access-box h2 {
     font-size: clamp(34px, 9vw, 52px);
     line-height: 1.02;
+  }
+
+  .investor-access-box h2::before {
+    font-size: clamp(34px, 9vw, 52px);
+  }
+
+  .impact-section .section-description {
+    white-space: normal;
   }
 
   .section-head > .eyebrow {
