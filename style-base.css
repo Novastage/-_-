@@ -1,0 +1,2498 @@
+:root {
+  --bg-main: #071426;
+  --bg-deep: #020712;
+
+  --bg-card: rgba(7, 17, 33, 0.62);
+
+  --line: rgba(130, 190, 255, 0.18);
+
+  --text: #f7fbff;
+  --muted: #b8c7de;
+
+  --primary: #79d7ff;
+  --secondary: #7c79ff;
+  --accent: #64ffd2;
+
+  --shadow:
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 0 30px rgba(73, 145, 255, 0.08);
+
+  --radius: 24px;
+
+  --container: 1480px;
+}
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+
+  font-family: "Poppins", sans-serif;
+
+  color: var(--text);
+
+  background:
+    radial-gradient(
+      circle at 15% 15%,
+      rgba(44, 103, 184, 0.32),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 85% 20%,
+      rgba(75, 48, 170, 0.30),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 50% 65%,
+      rgba(18, 107, 139, 0.18),
+      transparent 34%
+    ),
+    linear-gradient(
+      180deg,
+      #071426 0%,
+      #061120 35%,
+      #030a14 70%,
+      #020711 100%
+    );
+
+  overflow-x: hidden;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.container {
+  width: min(
+    var(--container),
+    calc(100% - 80px)
+  );
+
+  margin: 0 auto;
+}
+
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+
+h2 {
+  margin-bottom: 0;
+
+  font-size:
+    clamp(34px, 4vw, 54px);
+
+  line-height: 1.08;
+
+  letter-spacing: -0.02em;
+}
+
+
+p {
+  color: var(--muted);
+
+  line-height: 1.8;
+}
+
+
+.section {
+  position: relative;
+
+  z-index: 2;
+
+  min-height:
+    calc(100vh - 106px);
+
+  display: flex;
+
+  align-items: center;
+
+  padding: 120px 0;
+
+  scroll-margin-top: 106px;
+}
+
+
+.section > .container {
+  width: min(
+    var(--container),
+    calc(100% - 80px)
+  );
+}
+
+
+.section-head {
+  margin-bottom: 42px;
+}
+
+
+.section-description {
+  max-width: 720px;
+
+  margin-top: 18px;
+
+  margin-bottom: 0;
+
+  font-size: 16px;
+}
+
+
+.eyebrow {
+  margin: 0 0 12px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  letter-spacing: 0.26em;
+
+  color: var(--primary);
+}
+
+
+
+/* =========================================================
+   SPACE BACKGROUND
+========================================================= */
+
+.space-background {
+  position: fixed;
+
+  inset: 0;
+
+  overflow: hidden;
+
+  z-index: 0;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      ellipse at 25% 25%,
+      rgba(45, 110, 185, 0.12),
+      transparent 42%
+    ),
+    radial-gradient(
+      ellipse at 80% 40%,
+      rgba(101, 71, 190, 0.10),
+      transparent 44%
+    ),
+    radial-gradient(
+      ellipse at 55% 80%,
+      rgba(43, 160, 177, 0.07),
+      transparent 40%
+    );
+}
+
+
+#starfield {
+  position: absolute;
+  inset: 0;
+}
+
+
+.star {
+  position: absolute;
+
+  border-radius: 50%;
+
+  background: white;
+
+  opacity: 0.75;
+
+  box-shadow:
+    0 0 5px rgba(255,255,255,0.8),
+    0 0 10px rgba(120,195,255,0.45);
+
+  animation:
+    twinkle linear infinite;
+}
+
+
+@keyframes twinkle {
+
+  0%,
+  100% {
+    opacity: 0.18;
+    transform: scale(0.7);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.4);
+  }
+
+}
+
+
+.nebula {
+  position: absolute;
+
+  border-radius: 50%;
+
+  filter: blur(90px);
+
+  opacity: 0.4;
+
+  animation:
+    nebulaFloat 18s ease-in-out infinite alternate;
+}
+
+
+.nebula-1 {
+  width: 600px;
+  height: 600px;
+
+  top: -80px;
+  left: -180px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(55,148,255,0.55),
+      rgba(35,89,180,0.15) 45%,
+      transparent 72%
+    );
+}
+
+
+.nebula-2 {
+  width: 700px;
+  height: 700px;
+
+  top: 120px;
+  right: -220px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(104,77,255,0.45),
+      rgba(99,48,175,0.16) 46%,
+      transparent 72%
+    );
+}
+
+
+.nebula-3 {
+  width: 720px;
+  height: 720px;
+
+  bottom: -280px;
+  left: 30%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(56,255,217,0.20),
+      rgba(25,135,150,0.10) 45%,
+      transparent 72%
+    );
+}
+
+
+@keyframes nebulaFloat {
+
+  from {
+    transform:
+      translate3d(0,0,0)
+      scale(1);
+  }
+
+  to {
+    transform:
+      translate3d(40px,-20px,0)
+      scale(1.08);
+  }
+
+}
+
+
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.site-header {
+  position: sticky;
+
+  top: 0;
+
+  z-index: 30;
+
+  backdrop-filter: blur(18px);
+
+  background:
+    rgba(3,10,22,0.68);
+
+  border-bottom:
+    1px solid rgba(255,255,255,0.05);
+}
+
+
+.header-inner {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  min-height: 106px;
+
+  gap: 40px;
+}
+
+
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+
+.brand-logo {
+  width: 300px;
+
+  max-width: 46vw;
+
+  filter:
+    drop-shadow(
+      0 0 10px rgba(98,187,255,0.22)
+    );
+}
+
+
+.site-nav {
+  display: flex;
+
+  align-items: center;
+
+  gap: 38px;
+}
+
+
+.site-nav a {
+  position: relative;
+
+  font-size: 14px;
+
+  font-weight: 500;
+
+  color: #eef5ff;
+
+  letter-spacing: 0.09em;
+}
+
+
+.site-nav a::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  bottom: -10px;
+
+  width: 0;
+  height: 2px;
+
+  border-radius: 99px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--primary),
+      var(--accent)
+    );
+
+  transition:
+    width 0.25s ease;
+}
+
+
+.site-nav a:hover::after {
+  width: 100%;
+}
+
+
+.menu-toggle {
+  display: none;
+
+  background: transparent;
+
+  border: 0;
+
+  padding: 0;
+
+  cursor: pointer;
+}
+
+
+.menu-toggle span {
+  display: block;
+
+  width: 28px;
+  height: 2px;
+
+  background: white;
+
+  margin: 6px 0;
+
+  border-radius: 999px;
+}
+
+
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.hero {
+  position: relative;
+
+  z-index: 2;
+
+  min-height:
+    calc(100vh - 106px);
+
+  display: flex;
+
+  align-items: center;
+
+  padding: 110px 0 120px;
+
+  scroll-margin-top: 106px;
+}
+
+
+.hero-grid {
+  display: grid;
+
+  grid-template-columns:
+    minmax(0,1.18fr)
+    minmax(380px,0.82fr);
+
+  gap: 90px;
+
+  align-items: center;
+}
+
+
+.hero-copy {
+  max-width: 850px;
+}
+
+
+.hero-copy h1 {
+  font-size:
+    clamp(58px,6vw,102px);
+
+  line-height: 0.98;
+
+  letter-spacing: -0.045em;
+
+  margin-bottom: 32px;
+}
+
+
+.hero-text {
+  max-width: 720px;
+
+  font-size: 18px;
+
+  margin-bottom: 38px;
+}
+
+
+.hero-buttons {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 16px;
+}
+
+
+.btn {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-width: 180px;
+
+  padding: 16px 26px;
+
+  border-radius: 999px;
+
+  font-weight: 600;
+
+  font-size: 14px;
+
+  letter-spacing: 0.08em;
+
+  transition:
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+
+.btn:hover {
+  transform:
+    translateY(-3px);
+}
+
+
+.btn-primary {
+  color: #06111c;
+
+  background:
+    linear-gradient(
+      90deg,
+      #77d7ff,
+      #66ffd5
+    );
+
+  box-shadow:
+    0 12px 35px
+    rgba(74,205,255,0.25);
+}
+
+
+.btn-secondary {
+  color: white;
+
+  border:
+    1px solid
+    rgba(255,255,255,0.18);
+
+  background:
+    rgba(255,255,255,0.03);
+}
+
+
+.hero-visual {
+  display: flex;
+
+  justify-content: center;
+
+  align-items: center;
+}
+
+
+.hero-glow-card {
+  width: min(100%,540px);
+
+  min-height: 420px;
+
+  padding: 54px 40px;
+
+  border-radius: 32px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: center;
+
+  align-items: center;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(10,32,63,0.64),
+      rgba(6,17,32,0.74)
+    );
+
+  border:
+    1px solid
+    rgba(128,197,255,0.22);
+
+  box-shadow:
+    0 30px 70px rgba(0,0,0,0.4),
+    0 0 80px rgba(69,160,255,0.08);
+
+  backdrop-filter:
+    blur(20px);
+}
+
+
+.hero-glow-card img {
+  width: 100%;
+
+  max-width: 350px;
+
+  margin:
+    0 auto 32px;
+
+  filter:
+    drop-shadow(
+      0 0 18px
+      rgba(107,192,255,0.22)
+    );
+}
+
+
+.hero-glow-card p {
+  max-width: 360px;
+
+  text-align: center;
+
+  font-size: 15px;
+}
+
+
+
+/* =========================================================
+   GENERAL CARD
+========================================================= */
+
+.card {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(11,25,47,0.62),
+      rgba(5,14,28,0.65)
+    );
+
+  border:
+    1px solid var(--line);
+
+  border-radius:
+    var(--radius);
+
+  padding: 32px;
+
+  box-shadow:
+    var(--shadow);
+
+  backdrop-filter:
+    blur(18px);
+
+  transition:
+    transform .25s ease,
+    border-color .25s ease;
+}
+
+
+.card:hover {
+  transform:
+    translateY(-5px);
+
+  border-color:
+    rgba(132,205,255,0.32);
+}
+
+
+
+/* =========================================================
+   ABOUT
+========================================================= */
+
+.about-grid {
+  display: grid;
+
+  grid-template-columns:
+    1.2fr .8fr;
+
+  gap: 28px;
+
+  align-items: stretch;
+}
+
+
+.about-side {
+  display: grid;
+
+  gap: 28px;
+}
+
+
+.about-main p {
+  font-size: 17px;
+}
+
+
+.ceo-signature {
+  margin-top: 34px;
+
+  color: #edf5ff;
+}
+
+
+
+/* =========================================================
+   WHAT WE CREATE - LARGE IMAGE CARDS
+========================================================= */
+
+.business-image-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 28px;
+}
+
+
+.business-image-card {
+  position: relative;
+
+  min-height: 520px;
+
+  overflow: hidden;
+
+  border-radius: 30px;
+
+  border:
+    1px solid rgba(126, 194, 255, 0.20);
+
+  box-shadow:
+    0 28px 65px rgba(0, 0, 0, 0.40);
+
+  background: #071223;
+
+  isolation: isolate;
+
+  transition:
+    transform .4s ease,
+    border-color .4s ease,
+    box-shadow .4s ease;
+}
+
+
+.business-image-card img {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  /*
+    cover 대신 contain에 가까운 느낌을 주되
+    빈 공간이 생기지 않도록 설정
+  */
+  object-fit: cover;
+
+  object-position: center center;
+
+  z-index: -3;
+
+  transition:
+    transform 1s cubic-bezier(.2, .7, .2, 1);
+}
+
+
+/*
+  이미지가 너무 잘리지 않도록
+  카드 비율 자체를 4:3에 가깝게 설정
+*/
+.business-image-card {
+  aspect-ratio: 4 / 3;
+
+  min-height: unset;
+}
+
+
+/* 사진 위 어두운 그라데이션 */
+.business-image-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: -2;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3, 10, 22, 0.02) 0%,
+      rgba(3, 10, 22, 0.08) 35%,
+      rgba(3, 10, 22, 0.52) 68%,
+      rgba(2, 7, 16, 0.94) 100%
+    );
+}
+
+
+/* 아주 약한 블루 톤 통일 */
+.business-image-card::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: -1;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(80, 178, 255, 0.04),
+      transparent 50%,
+      rgba(105, 95, 255, 0.05)
+    );
+}
+
+
+/* 텍스트 */
+.business-image-content {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 38px 40px;
+}
+
+
+.business-number {
+  display: inline-block;
+
+  margin-bottom: 12px;
+
+  font-size: 13px;
+
+  font-weight: 600;
+
+  letter-spacing: .20em;
+
+  color: var(--primary);
+}
+
+
+.business-image-content h3 {
+  margin-bottom: 14px;
+
+  font-size: clamp(25px, 2vw, 34px);
+
+  line-height: 1.08;
+
+  color: #fff;
+}
+
+
+.business-image-content p {
+  max-width: 620px;
+
+  margin-bottom: 0;
+
+  font-size: 15px;
+
+  line-height: 1.7;
+
+  color:
+    rgba(230, 239, 250, 0.88);
+}
+
+
+.business-image-card:hover {
+  transform:
+    translateY(-8px);
+
+  border-color:
+    rgba(122, 216, 255, 0.48);
+
+  box-shadow:
+    0 38px 85px rgba(0, 0, 0, 0.50),
+    0 0 35px rgba(80, 170, 255, 0.10);
+}
+
+
+.business-image-card:hover img {
+  transform:
+    scale(1.025);
+}
+
+.business-image-content {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 34px 30px;
+}
+
+
+.business-number {
+  display: inline-block;
+
+  margin-bottom: 13px;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  letter-spacing: .20em;
+
+  color: var(--primary);
+}
+
+
+.business-image-content h3 {
+  margin-bottom: 14px;
+
+  font-size:
+    clamp(21px,1.5vw,27px);
+
+  line-height: 1.12;
+
+  color: white;
+}
+
+
+.business-image-content p {
+  margin-bottom: 0;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+
+  color:
+    rgba(225,236,250,0.82);
+}
+
+/* =========================================================
+   FEATURED PROJECTS - FINAL + ANIMATION
+========================================================= */
+
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 30px;
+  align-items: stretch;
+}
+
+
+/* ---------------------------------------------------------
+   공통 프로젝트 카드
+--------------------------------------------------------- */
+
+.project-card {
+  position: relative;
+
+  min-height: 460px;
+
+  border-radius: 30px;
+  overflow: hidden;
+
+  background-color: #071223;
+
+  border: 1px solid rgba(138, 193, 255, 0.20);
+
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.42);
+
+  /* 처음에는 숨겨진 상태 */
+  opacity: 0;
+
+  transform:
+    translateY(45px)
+    scale(0.97);
+
+  transition:
+    opacity 0.9s ease,
+    transform 0.9s cubic-bezier(.2, .7, .2, 1),
+    box-shadow 0.35s ease,
+    border-color 0.35s ease;
+}
+
+
+/* 화면에 들어왔을 때 */
+.project-card.show {
+  opacity: 1;
+
+  transform:
+    translateY(0)
+    scale(1);
+}
+
+
+/* 카드 순차 등장 */
+.project-card:nth-child(1) {
+  transition-delay: 0.05s;
+}
+
+.project-card:nth-child(2) {
+  transition-delay: 0.18s;
+}
+
+.project-card:nth-child(3) {
+  transition-delay: 0.31s;
+}
+
+
+/* 마우스 오버 */
+.project-card.show:hover {
+  transform:
+    translateY(-8px)
+    scale(1.01);
+
+  border-color:
+    rgba(120, 205, 255, 0.46);
+
+  box-shadow:
+    0 38px 85px rgba(0, 0, 0, 0.52),
+    0 0 35px rgba(80, 170, 255, 0.12);
+}
+
+
+/* =========================================================
+   역삼각형 배치
+========================================================= */
+
+.project-card:nth-child(3) {
+  grid-column: 1 / -1;
+
+  width:
+    calc((100% - 30px) / 2);
+
+  justify-self: center;
+
+  min-height: 460px;
+}
+
+
+/* =========================================================
+   PROJECT IMAGES
+========================================================= */
+
+/* GLOBAL CONCERT PROJECT */
+.project-one {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3, 8, 17, 0.02) 0%,
+      rgba(3, 8, 17, 0.08) 48%,
+      rgba(3, 8, 17, 0.88) 100%
+    ),
+    url("assets/global-concert-project.png")
+    center center / cover
+    no-repeat;
+}
+
+
+/* K-CULTURE EXHIBITION */
+.project-two {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3, 8, 17, 0.02) 0%,
+      rgba(3, 8, 17, 0.08) 48%,
+      rgba(3, 8, 17, 0.88) 100%
+    ),
+    url("assets/k-culture-exhibition.png")
+    center center / cover
+    no-repeat;
+}
+
+
+/* GLOBAL ENTERTAINMENT IP */
+.project-three {
+  background:
+    linear-gradient(
+      180deg,
+      rgba(3, 8, 17, 0.02) 0%,
+      rgba(3, 8, 17, 0.08) 48%,
+      rgba(3, 8, 17, 0.88) 100%
+    ),
+    url("assets/global-entertainment-ip.png")
+    center center / cover
+    no-repeat;
+}
+
+
+/* =========================================================
+   PROJECT TEXT OVERLAY
+========================================================= */
+
+.project-overlay {
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  padding: 34px;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(2, 7, 16, 0.00) 0%,
+      rgba(2, 7, 16, 0.28) 28%,
+      rgba(2, 7, 16, 0.92) 100%
+    );
+}
+
+
+/* 텍스트도 살짝 늦게 등장 */
+.project-overlay h3,
+.project-overlay p {
+  opacity: 0;
+
+  transform: translateY(14px);
+
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+
+
+.project-card.show .project-overlay h3,
+.project-card.show .project-overlay p {
+  opacity: 1;
+
+  transform: translateY(0);
+}
+
+
+.project-card.show .project-overlay h3 {
+  transition-delay: 0.20s;
+}
+
+
+.project-card.show .project-overlay p {
+  transition-delay: 0.30s;
+}
+
+
+.project-overlay h3 {
+  margin-bottom: 10px;
+
+  font-size: 24px;
+
+  line-height: 1.1;
+
+  color: #ffffff;
+}
+
+
+.project-overlay p {
+  max-width: 620px;
+
+  margin-bottom: 0;
+
+  font-size: 14px;
+
+  line-height: 1.7;
+
+  color:
+    rgba(230, 239, 250, 0.88);
+}
+
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 1000px) {
+
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-card,
+  .project-card:nth-child(3) {
+    width: 100%;
+
+    grid-column: auto;
+
+    min-height: 430px;
+  }
+
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .project-grid {
+    gap: 20px;
+  }
+
+  .project-card,
+  .project-card:nth-child(3) {
+    width: 100%;
+
+    min-height: 340px;
+
+    border-radius: 22px;
+  }
+
+  .project-overlay {
+    padding: 24px 20px;
+  }
+
+  .project-overlay h3 {
+    font-size: 20px;
+  }
+
+  .project-overlay p {
+    font-size: 13px;
+
+    line-height: 1.6;
+  }
+
+}
+
+
+/* =========================================================
+   접근성 - 모션 최소화 설정
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .project-card,
+  .project-overlay h3,
+  .project-overlay p {
+    opacity: 1;
+
+    transform: none;
+
+    transition: none;
+  }
+
+}
+
+/* =========================================================
+   MOBILE BUSINESS CARDS
+========================================================= */
+
+@media (max-width: 700px) {
+
+  .business-image-grid {
+    grid-template-columns: 1fr;
+
+    gap: 20px;
+  }
+
+
+  .business-image-card {
+    aspect-ratio: 4 / 3;
+
+    border-radius: 22px;
+  }
+
+
+  .business-image-content {
+    padding: 26px 22px;
+  }
+
+
+  .business-image-content h3 {
+    font-size: 24px;
+  }
+
+
+  .business-image-content p {
+    font-size: 13px;
+
+    line-height: 1.6;
+  }
+
+}
+
+@media (max-width: 1000px) {
+
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .project-card,
+  .project-card:nth-child(3) {
+    grid-column: auto;
+    min-height: 500px;
+  }
+
+}
+
+
+@media (max-width: 700px) {
+
+  .project-card,
+  .project-card:nth-child(3) {
+    min-height: 380px;
+  }
+
+  .project-overlay {
+    padding: 26px 22px;
+  }
+
+  .project-overlay h3 {
+    font-size: 24px;
+  }
+
+  .project-overlay p {
+    font-size: 13px;
+  }
+
+}
+
+
+/* =========================================================
+   SMOOTH SECTION FADE TRANSITION
+========================================================= */
+
+.page-fade-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 9999;
+
+  pointer-events: none;
+
+  opacity: 0;
+
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(10, 28, 55, 0.72),
+      rgba(2, 7, 16, 0.96)
+    );
+
+  backdrop-filter: blur(4px);
+
+  transition:
+    opacity 1.4s ease;
+}
+
+/* =========================================================
+   SMOOTH SECTION TRANSITION
+   메뉴 이동 시 부드러운 Fade Out / Fade In
+========================================================= */
+
+main {
+  opacity: 1;
+  transform: scale(1);
+  filter: blur(0);
+
+  transition:
+    opacity 1s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 1s cubic-bezier(0.4, 0, 0.2, 1),
+    filter 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* 이동 시작 */
+body.section-changing main {
+  opacity: 0.12;
+
+  transform: scale(0.992);
+
+  filter: blur(2px);
+}
+
+
+/* 모션 최소화 설정 사용자 */
+@media (prefers-reduced-motion: reduce) {
+
+  main {
+    transition: none;
+  }
+
+  body.section-changing main {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+
+}
+
+/* =========================================================
+   FINAL MOBILE OVERRIDE
+   반드시 style.css 가장 마지막에 위치
+========================================================= */
+
+@media screen and (max-width: 768px) {
+
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    overflow-x: hidden;
+  }
+
+  body {
+    min-width: 0 !important;
+  }
+
+
+  /* =========================================
+     전체 컨테이너
+  ========================================= */
+
+  .container,
+  .section > .container {
+    width: calc(100% - 32px) !important;
+    max-width: none !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+
+  /* =========================================
+     HEADER
+  ========================================= */
+
+  .site-header {
+    width: 100%;
+    height: auto;
+
+    background: rgba(3, 10, 22, 0.94);
+
+    backdrop-filter: blur(18px);
+  }
+
+
+  .header-inner {
+    min-height: 74px !important;
+
+    display: flex !important;
+
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    gap: 15px !important;
+  }
+
+
+  .brand {
+    flex-shrink: 0;
+  }
+
+
+  .brand-logo {
+    width: 145px !important;
+    max-width: 145px !important;
+    height: auto !important;
+  }
+
+
+  /* 데스크톱 메뉴 숨기기 */
+  .site-nav {
+    display: none !important;
+
+    position: absolute !important;
+
+    top: 74px !important;
+
+    left: 16px !important;
+    right: 16px !important;
+
+    width: auto !important;
+
+    flex-direction: column !important;
+
+    align-items: stretch !important;
+
+    gap: 0 !important;
+
+    padding: 14px 20px !important;
+
+    border-radius: 18px;
+
+    background: rgba(4, 12, 25, 0.98);
+
+    border: 1px solid rgba(125, 200, 255, 0.18);
+
+    box-shadow:
+      0 25px 60px rgba(0, 0, 0, 0.45);
+  }
+
+
+  /* 햄버거 눌렀을 때 메뉴 */
+  .site-nav.active {
+    display: flex !important;
+  }
+
+
+  .site-nav a {
+    width: 100% !important;
+
+    padding: 14px 5px !important;
+
+    font-size: 13px !important;
+
+    text-align: left;
+
+    border-bottom:
+      1px solid rgba(255, 255, 255, 0.07);
+  }
+
+
+  .site-nav a:last-child {
+    border-bottom: none;
+  }
+
+
+  /* 햄버거 버튼 */
+  .menu-toggle {
+    display: block !important;
+
+    position: relative;
+
+    z-index: 100;
+
+    width: 34px;
+    height: 34px;
+
+    padding: 4px;
+
+    flex-shrink: 0;
+  }
+
+
+  .menu-toggle span {
+    display: block !important;
+
+    width: 26px !important;
+    height: 2px !important;
+
+    margin: 5px 0 !important;
+
+    background: #ffffff !important;
+  }
+
+
+  /* =========================================
+     HERO
+  ========================================= */
+
+  .hero {
+    width: 100% !important;
+
+    min-height: auto !important;
+
+    padding:
+      85px 0 75px !important;
+
+    display: block !important;
+  }
+
+
+  .hero-grid {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns: 1fr !important;
+
+    gap: 40px !important;
+  }
+
+
+  .hero-copy {
+    width: 100% !important;
+
+    max-width: none !important;
+  }
+
+
+  .eyebrow {
+    font-size: 10px !important;
+
+    letter-spacing: 0.18em !important;
+
+    line-height: 1.5;
+
+    margin-bottom: 14px;
+  }
+
+
+  .hero-copy h1 {
+    width: 100% !important;
+
+    max-width: none !important;
+
+    font-size: clamp(
+      38px,
+      11vw,
+      54px
+    ) !important;
+
+    line-height: 1.02 !important;
+
+    letter-spacing: -0.04em !important;
+
+    margin-bottom: 25px !important;
+
+    word-break: normal !important;
+    overflow-wrap: normal !important;
+  }
+
+
+  .hero-text {
+    width: 100% !important;
+
+    max-width: none !important;
+
+    font-size: 15px !important;
+
+    line-height: 1.75 !important;
+
+    margin-bottom: 28px !important;
+
+    word-break: normal !important;
+  }
+
+
+  /* 버튼 */
+  .hero-buttons {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns: 1fr !important;
+
+    gap: 12px !important;
+  }
+
+
+  .hero-buttons .btn {
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    padding: 15px 18px !important;
+
+    font-size: 12px !important;
+  }
+
+
+  /* 오른쪽 로고 카드 */
+  .hero-visual {
+    width: 100% !important;
+
+    display: block !important;
+  }
+
+
+  .hero-glow-card {
+    width: 100% !important;
+
+    max-width: none !important;
+
+    min-height: 300px !important;
+
+    padding:
+      35px 24px !important;
+
+    border-radius: 24px !important;
+  }
+
+
+  .hero-glow-card img {
+    width: 220px !important;
+
+    max-width: 70% !important;
+
+    margin:
+      0 auto 24px !important;
+  }
+
+
+  .hero-glow-card p {
+    max-width: 100% !important;
+
+    font-size: 13px !important;
+
+    line-height: 1.65 !important;
+  }
+
+
+  /* =========================================
+     일반 섹션
+  ========================================= */
+
+  .section {
+    width: 100% !important;
+
+    min-height: auto !important;
+
+    display: block !important;
+
+    padding:
+      75px 0 !important;
+  }
+
+
+  .section-head {
+    width: 100% !important;
+
+    margin-bottom: 28px !important;
+  }
+
+
+  .section-head h2,
+  h2 {
+    width: 100% !important;
+
+    font-size: clamp(
+      28px,
+      8vw,
+      38px
+    ) !important;
+
+    line-height: 1.1 !important;
+
+    word-break: normal !important;
+  }
+
+
+  .section-description {
+    width: 100% !important;
+
+    font-size: 14px !important;
+
+    line-height: 1.7 !important;
+  }
+
+
+  /* =========================================
+     ABOUT
+  ========================================= */
+
+  .about-grid {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns: 1fr !important;
+
+    gap: 18px !important;
+  }
+
+
+  .about-main,
+  .about-side {
+    width: 100% !important;
+  }
+
+
+  .about-side {
+    display: grid !important;
+
+    grid-template-columns: 1fr !important;
+
+    gap: 18px !important;
+  }
+
+
+  .card {
+    width: 100% !important;
+
+    padding: 22px !important;
+
+    border-radius: 20px !important;
+  }
+
+
+  .card p,
+  .about-main p {
+    font-size: 14px !important;
+
+    line-height: 1.75 !important;
+
+    word-break: normal !important;
+  }
+
+
+  /* =========================================
+     WHAT WE CREATE
+  ========================================= */
+
+  .business-image-grid {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns: 1fr !important;
+
+    gap: 20px !important;
+  }
+
+
+  .business-image-card {
+    width: 100% !important;
+
+    min-height: 390px !important;
+
+    aspect-ratio: auto !important;
+
+    border-radius: 22px !important;
+  }
+
+
+  .business-image-content {
+    padding:
+      26px 22px !important;
+  }
+
+
+  .business-image-content h3 {
+    font-size: 23px !important;
+  }
+
+
+  .business-image-content p {
+    font-size: 13px !important;
+
+    line-height: 1.6 !important;
+  }
+
+
+  /* =========================================
+     FEATURED PROJECTS
+  ========================================= */
+
+  .project-grid {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns: 1fr !important;
+
+    gap: 20px !important;
+  }
+
+
+  .project-card,
+  .project-card:nth-child(3) {
+    width: 100% !important;
+
+    grid-column: auto !important;
+
+    min-height: 360px !important;
+
+    border-radius: 22px !important;
+  }
+
+
+  .project-overlay {
+    padding:
+      25px 21px !important;
+  }
+
+
+  .project-overlay h3 {
+    font-size: 21px !important;
+
+    line-height: 1.15 !important;
+  }
+
+
+  .project-overlay p {
+    font-size: 13px !important;
+
+    line-height: 1.6 !important;
+  }
+
+
+  /* =========================================
+     CONTACT
+  ========================================= */
+
+  .contact-grid {
+    width: 100% !important;
+
+    display: grid !important;
+
+    grid-template-columns: 1fr !important;
+
+    gap: 18px !important;
+  }
+
+
+  .contact-list li {
+    font-size: 13px !important;
+
+    line-height: 1.7;
+
+    word-break: break-word;
+  }
+
+
+  /* =========================================
+     FOOTER
+  ========================================= */
+
+  .footer-inner {
+    width: 100% !important;
+
+    display: flex !important;
+
+    flex-direction: column !important;
+
+    align-items: flex-start !important;
+
+    gap: 22px !important;
+  }
+
+
+  .footer-brand img {
+    width: 170px !important;
+  }
+
+
+  .footer-text {
+    width: 100%;
+  }
+
+
+  .footer-text p {
+    text-align: left !important;
+
+    font-size: 11px !important;
+
+    line-height: 1.6 !important;
+  }
+
+}
+
+
+/* =========================================================
+   EXTRA SMALL MOBILE
+========================================================= */
+
+@media screen and (max-width: 430px) {
+
+  .container,
+  .section > .container {
+    width:
+      calc(100% - 24px) !important;
+  }
+
+
+  .hero-copy h1 {
+    font-size:
+      clamp(
+        36px,
+        11vw,
+        46px
+      ) !important;
+  }
+
+
+  .brand-logo {
+    width: 135px !important;
+  }
+
+
+  .business-image-card {
+    min-height: 360px !important;
+  }
+
+
+  .project-card,
+  .project-card:nth-child(3) {
+    min-height: 320px !important;
+  }
+
+}
+
+/* =========================================================
+   FINAL FOOTER FIX
+   반드시 style.css 맨 마지막에 넣기
+========================================================= */
+
+.site-footer {
+  position: relative;
+  z-index: 2;
+
+  min-height: auto !important;
+
+  padding: 80px 0 60px !important;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+
+  background: rgba(3, 9, 19, 0.54);
+
+  backdrop-filter: blur(12px);
+}
+
+.footer-inner {
+  display: flex !important;
+  flex-direction: column !important;
+
+  align-items: center !important;
+  justify-content: center !important;
+
+  gap: 22px !important;
+
+  width: 100% !important;
+
+  text-align: center !important;
+}
+
+.footer-brand {
+  width: 100% !important;
+
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+}
+
+.footer-brand img {
+  display: block !important;
+
+  width: 320px !important;
+  max-width: 70vw !important;
+  height: auto !important;
+
+  margin: 0 auto !important;
+
+  filter: drop-shadow(0 0 18px rgba(98, 187, 255, 0.18));
+}
+
+.footer-text {
+  width: 100% !important;
+  text-align: center !important;
+}
+
+.footer-text p {
+  margin: 0 0 10px !important;
+
+  text-align: center !important;
+
+  font-size: 13px !important;
+  line-height: 1.7 !important;
+}
+
+.footer-text a {
+  color: #dcecff;
+  text-decoration: none;
+}
+
+
+/* 모바일 */
+@media (max-width: 768px) {
+  .site-footer {
+    padding: 60px 0 50px !important;
+  }
+
+  .footer-brand img {
+    width: 200px !important;
+    max-width: 65vw !important;
+  }
+
+  .footer-text p {
+    font-size: 12px !important;
+  }
+}
+
+/* =========================================================
+   SOCIAL IMPACT - FULL IMAGE
+========================================================= */
+
+.impact-section {
+  min-height: auto;
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+
+.impact-full-image {
+  width: 100%;
+
+  margin-top: 32px;
+
+  border-radius: 30px;
+
+  overflow: hidden;
+
+  border: 1px solid rgba(130, 190, 255, 0.20);
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+.impact-full-image img {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  object-fit: contain;
+}
+
+
+/* 모바일 */
+@media (max-width: 768px) {
+
+  .impact-section {
+    padding-top: 75px;
+    padding-bottom: 75px;
+  }
+
+  .impact-full-image {
+    width: 100%;
+
+    margin-top: 24px;
+
+    border-radius: 20px;
+  }
+
+}
+
+
+/* =========================================================
+   GLOBAL - FULL IMAGE
+========================================================= */
+
+.global-section {
+  min-height: auto;
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+
+.global-full-image {
+  width: 100%;
+  margin-top: 32px;
+
+  border-radius: 30px;
+  overflow: hidden;
+
+  border: 1px solid rgba(130, 190, 255, 0.20);
+
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+.global-full-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+
+  object-fit: contain;
+}
+
+
+/* 모바일 */
+@media (max-width: 768px) {
+
+  .global-section {
+    padding-top: 75px;
+    padding-bottom: 75px;
+  }
+
+  .global-full-image {
+    margin-top: 24px;
+    border-radius: 20px;
+  }
+
+}
+
+
+/* =========================================================
+   DESKTOP IMAGE CARD ZOOM EFFECT
+   사진이 들어간 카드만 확대
+========================================================= */
+
+@media (min-width: 1025px) {
+
+  /* WHAT WE CREATE */
+  .business-image-card,
+
+  /* FEATURED PROJECTS */
+  .project-card {
+
+    position: relative;
+
+    transform-origin: center center;
+
+    transition:
+      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.45s ease,
+      border-color 0.45s ease;
+
+    will-change: transform;
+  }
+
+
+  /* 마우스를 올렸을 때 확대 */
+  .business-image-card:hover,
+  .project-card:hover {
+
+    transform: scale(1.35) !important;
+
+    z-index: 100;
+
+    border-color:
+      rgba(120, 215, 255, 0.55);
+
+    box-shadow:
+      0 45px 110px rgba(0, 0, 0, 0.72),
+      0 0 50px rgba(80, 175, 255, 0.18);
+  }
+
+
+  /* WHAT WE CREATE 내부 이미지 살짝 확대 */
+  .business-image-card:hover img {
+    transform: scale(1.04);
+  }
+
+
+  /* 부모에서 카드가 잘리지 않게 */
+  .business-image-grid,
+  .project-grid {
+    overflow: visible !important;
+  }
+
+}
+
+/* =========================================================
+   MOBILE / TABLET PERFORMANCE MODE
+   1024px 이하에서는 애니메이션 최소화
+========================================================= */
+
+@media (max-width: 1024px) {
+
+  /* 섹션 페이드 효과 제거 */
+  .fade-section,
+  .fade-section.show {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* FEATURED PROJECTS 등장 효과 제거 */
+  .project-card,
+  .project-card.show {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* 프로젝트 내부 텍스트 등장 효과 제거 */
+  .project-overlay h3,
+  .project-overlay p,
+  .project-card.show .project-overlay h3,
+  .project-card.show .project-overlay p {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* 사진 카드 hover 확대 제거 */
+  .business-image-card,
+  .business-image-card:hover,
+  .project-card:hover {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* 카드 내부 사진 확대 제거 */
+  .business-image-card img,
+  .business-image-card:hover img {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* 일반 카드 hover 이동 제거 */
+  .card,
+  .card:hover {
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* 성운 움직임 정지 */
+  .nebula {
+    animation: none !important;
+  }
+
+  /* 별 반짝임도 조금 가볍게 */
+  .star {
+    animation-duration: 8s !important;
+    box-shadow: none !important;
+  }
+}
+
+/* =========================================================
+   INVESTOR ACCESS SECTION
+========================================================= */
+
+.investor-section {
+  position: relative;
+  min-height: 85vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 120px 0;
+  overflow: hidden;
+}
+
+.investor-access-box {
+  position: relative;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 90px 60px;
+  text-align: center;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(9, 24, 48, 0.88),
+      rgba(12, 18, 38, 0.72)
+    );
+
+  border: 1px solid rgba(120, 210, 255, 0.18);
+  border-radius: 32px;
+
+  box-shadow:
+    0 40px 100px rgba(0, 0, 0, 0.55),
+    0 0 60px rgba(61, 176, 255, 0.08);
+
+  backdrop-filter: blur(14px);
+}
+
+.investor-lock-icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 1px solid rgba(114, 225, 255, 0.35);
+
+  background: rgba(64, 171, 255, 0.08);
+
+  box-shadow:
+    0 0 30px rgba(91, 199, 255, 0.15);
+}
+
+.investor-lock-icon span {
+  font-size: 30px;
+  color: #9beeff;
+}
+
+.investor-access-box h2 {
+  margin: 16px 0 26px;
+
+  font-size: clamp(48px, 6vw, 82px);
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+}
+
+.investor-description {
+  max-width: 700px;
+  margin: 0 auto 18px;
+
+  font-size: 19px;
+  line-height: 1.7;
+
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.investor-security-text {
+  max-width: 650px;
+  margin: 0 auto 38px;
+
+  font-size: 15px;
+  line-height: 1.9;
+
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.investor-enter-btn {
+  min-width: 260px;
+}
+
+
+/* =========================================================
+   INVESTOR - TABLET / MOBILE
+========================================================= */
+
+@media (max-width: 1024px) {
+
+  .investor-section {
+    min-height: auto !important;
+    padding: 80px 0 !important;
+
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  .investor-access-box {
+    padding: 65px 35px;
+
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+
+    backdrop-filter: none;
+  }
+
+  .investor-access-box h2 {
+    font-size: clamp(42px, 8vw, 64px);
+  }
+}
+
+
+@media (max-width: 600px) {
+
+  .investor-section {
+    padding: 65px 0 !important;
+  }
+
+  .investor-access-box {
+    padding: 55px 22px;
+    border-radius: 22px;
+  }
+
+  .investor-lock-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 24px;
+  }
+
+  .investor-lock-icon span {
+    font-size: 25px;
+  }
+
+  .investor-access-box h2 {
+    font-size: 39px;
+    line-height: 1;
+  }
+
+  .investor-description {
+    font-size: 16px;
+  }
+
+  .investor-security-text {
+    font-size: 14px;
+  }
+
+  .investor-enter-btn {
+    width: 100%;
+    min-width: 0;
+  }
+}
