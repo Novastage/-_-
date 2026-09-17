@@ -195,7 +195,7 @@ if ('IntersectionObserver' in window) {
 // ======================================================
 // CINEMATIC VIDEO HERO
 // assets/hero-bg.mp4 is intentionally used as a muted looping hero.
-// The same asset opens in a controlled modal when WATCH FILM is clicked.
+// WATCH FILM opens the full-length Nova Stage film with sound and controls.
 // ======================================================
 (() => {
   const hero = document.querySelector('.hero');
@@ -551,14 +551,14 @@ if ('IntersectionObserver' in window) {
   // Encourage autoplay where permitted. Failure simply leaves the first frame/fallback.
   backgroundVideo.play().catch(() => {});
 
-  // Film modal. The source can later be switched to a full-length film without changing the hero layout.
+  // Full-length film modal.
   const modal = document.createElement('div');
   modal.className = 'nova-film-modal';
   modal.setAttribute('aria-hidden', 'true');
   modal.innerHTML = `
     <div class="nova-film-shell" role="dialog" aria-modal="true" aria-label="Nova Stage film">
       <button type="button" class="nova-film-close" aria-label="Close film">×</button>
-      <video src="assets/hero-bg.mp4" controls playsinline preload="metadata"></video>
+      <video src="assets/nova-stage-full-film.mp4" controls playsinline preload="metadata"></video>
     </div>
   `;
   document.body.appendChild(modal);
