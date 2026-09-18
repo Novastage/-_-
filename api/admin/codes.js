@@ -9,7 +9,7 @@ export default async function handler(req, res) {
     if (!admin) return;
     if (req.method === 'GET') {
       const [codes, statusCounts, music, global] = await Promise.all([
-        query('SELECT id, investor_label, company, memo, access_type, status, expires_at, first_access_at, last_activity_at, created_at FROM investor_access_codes ORDER BY created_at DESC LIMIT 200'),
+        query("SELECT id, investor_label, company, memo, access_type, status, expires_at, first_access_at, last_activity_at, created_at FROM investor_access_codes WHERE status IN ('UNUSED', 'ACTIVE_SESSION') ORDER BY created_at DESC LIMIT 200"),
         query("SELECT status, COUNT(*)::int AS count FROM investor_access_codes GROUP BY status"),
         query('SELECT COUNT(*)::int AS count FROM music_tracks'),
         query('SELECT COUNT(*)::int AS count FROM global_representatives')
